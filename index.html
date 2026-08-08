@@ -10,6 +10,7 @@
     :root {
         --bg-main: #F8FAFC;
         --nav-bg: #0F172A;
+        --nav-sub-bg: #1E293B;
         --accent-blue: #2563EB;
         --accent-green: #16A34A;
         --text-dark: #0F172A;
@@ -26,9 +27,13 @@
     .nav-container { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; }
     .logo { font-size: 24px; font-weight: 800; color: #fff; text-decoration: none; letter-spacing: -0.5px; }
     .logo span { color: var(--accent-blue); }
-    .nav-links { display: flex; gap: 24px; list-style: none; }
-    .nav-links a { color: #CBD5E1; text-decoration: none; font-weight: 500; font-size: 15px; transition: color 0.2s; }
-    .nav-links a:hover { color: #FFF; }
+
+    /* Scrollable Sub-Header Navigation Bars */
+    .sub-nav { background: var(--nav-sub-bg); border-top: 1px solid rgba(255,255,255,0.08); overflow-x: auto; white-space: nowrap; scrollbar-width: none; }
+    .sub-nav::-webkit-scrollbar { display: none; }
+    .sub-nav-container { max-width: 1200px; margin: 0 auto; display: flex; gap: 18px; padding: 10px 20px; }
+    .sub-nav-container a { color: #CBD5E1; text-decoration: none; font-size: 13px; font-weight: 500; transition: color 0.2s; }
+    .sub-nav-container a:hover { color: #38BDF8; }
 
     /* Container */
     .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
@@ -64,28 +69,42 @@
     <header>
         <div class="nav-container">
             <a href="index.html" class="logo">BG <span>TECH</span></a>
-            <ul class="nav-links">
-                <li><a href="#trending">Trending</a></li>
-                <li><a href="#mobiles">Mobiles</a></li>
-                <li><a href="#laptops">Laptops</a></li>
-            </ul>
         </div>
+        
+    <div class="sub-nav">
+        <div class="sub-nav-container">
+            <a href="index.html">Home</a>
+            <a href="index.html#mobiles">Mobiles</a>
+            <a href="index.html#laptops">Laptops</a>
+            <a href="index.html#headphones">Headphones</a>
+            <a href="index.html#wearables">Smart Wearables</a>
+            <a href="index.html#audio">Audio & Sound</a>
+            <a href="index.html#printers">Printers</a>
+            <a href="index.html#new">New Releases</a>
+            <a href="index.html#reviews">Tech Review</a>
+            <a href="index.html#electronics">Electronics</a>
+            <a href="index.html#bestsellers">Best Sellers</a>
+            <a href="index.html#gadgets">Gadgets</a>
+            <a href="index.html#deals">Deals</a>
+        </div>
+    </div>
+    
     </header>
 
     <!-- Hero Section -->
     <section style="background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%); color: white; padding: 60px 20px; text-align: center;">
         <div style="max-width: 800px; margin: 0 auto;">
-            <h1 style="font-size: 40px; font-weight: 800; margin-bottom: 16px; letter-spacing: -1px;">Find The Best Tech Before You Buy</h1>
-            <p style="font-size: 18px; color: #94A3B8; margin-bottom: 28px;">Expert reviews, detailed specifications breakdown, and live deal tracking.</p>
+            <h1 style="font-size: 40px; font-weight: 800; margin-bottom: 16px; letter-spacing: -1px;">FIND THE BEST TECH BEFORE YOU BUY</h1>
+            <p style="font-size: 18px; color: #94A3B8; margin-bottom: 28px;">Expert Reviews • Specs • Best Deals</p>
             <div style="display: flex; gap: 12px; justify-content: center;">
-                <a href="#trending" class="btn btn-buy" style="padding: 12px 24px; font-size: 15px;">Explore Latest Reviews</a>
+                <a href="#trending" class="btn btn-buy" style="padding: 12px 24px; font-size: 15px;">Explore Reviews</a>
             </div>
         </div>
     </section>
 
     <main class="container">
         <!-- 🔥 Trending Tech -->
-        <h2 class="section-title" id="trending">🔥 Trending Reviews</h2>
+        <h2 class="section-title" id="trending">🔥 Trending Tech</h2>
         <div class="grid">
             
             <div class="card">
@@ -151,7 +170,7 @@
         </div>
 
         <!-- 📱 Latest Smartphones -->
-        <h2 class="section-title" id="mobiles">📱 Smartphones</h2><div class="grid">
+        <h2 class="section-title" id="mobiles">📱 Latest Smartphones</h2><div class="grid">
             <div class="card">
                 <div class="card-img-wrapper">
                     <img src="https://rukminim2.flixcart.com/image/300/300/xif0q/mobile/p/t/e/-original-imahmkv6h89gcyvb.jpeg" alt="OPPO K14 5G">
@@ -213,12 +232,64 @@
                 </div>
             </div></div>
 
-        <!-- 💻 Best Laptops -->
+        <!-- 💻 Laptops & Computers -->
         
+
+        <!-- 🎧 Headphones & Audio -->
+        
+
+        <!-- ⚙️ Gadgets & Other Tech -->
+        <h2 class="section-title" id="gadgets">⚙️ Other Electronics & Gadgets</h2><div class="grid">
+            <div class="card">
+                <div class="card-img-wrapper">
+                    <img src="https://rukminim2.flixcart.com/image/300/300/xif0q/mobile/h/n/f/-original-imahng2ypvnsnqzq.jpeg" alt="MOTOROLA g37 power">
+                </div>
+                <div class="card-content">
+                    <span class="badge">Gadgets</span>
+                    <a href="products/motorola-g37-power/" class="card-title">MOTOROLA g37 power</a>
+                    <div class="rating">★ 4.2 out of 5 stars</div>
+                    <div class="price">Check Best Price</div>
+                    <div class="card-buttons">
+                        <a href="products/motorola-g37-power/" class="btn btn-review">Full Review</a>
+                        <a href="https://fktr.in/fy97XfX" target="_blank" class="btn btn-buy">Best Price</a>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-img-wrapper">
+                    <img src="https://rukminim2.flixcart.com/image/300/300/xif0q/printer/x/l/e/-enriched-transparent-original-imahhdqf8tybe7zn.png" alt="HP Smart Tank All in One 523 Multi">
+                </div>
+                <div class="card-content">
+                    <span class="badge">Gadgets</span>
+                    <a href="products/hp-smart-tank-all-in-one-523-multi/" class="card-title">HP Smart Tank All in One 523 Multi</a>
+                    <div class="rating">★ 4.2 out of 5 stars</div>
+                    <div class="price">Check Best Price</div>
+                    <div class="card-buttons">
+                        <a href="products/hp-smart-tank-all-in-one-523-multi/" class="btn btn-review">Full Review</a>
+                        <a href="https://fktr.in/wXDNTna" target="_blank" class="btn btn-buy">Best Price</a>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-img-wrapper">
+                    <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=1000&auto=format&fit=crop" alt="Best Tech Gadget Deal">
+                </div>
+                <div class="card-content">
+                    <span class="badge">Gadgets</span>
+                    <a href="products/best-tech-gadget-deal/" class="card-title">Best Tech Gadget Deal</a>
+                    <div class="rating">★ 4.2 out of 5 stars</div>
+                    <div class="price">Check Best Price</div>
+                    <div class="card-buttons">
+                        <a href="products/best-tech-gadget-deal/" class="btn btn-review">Full Review</a>
+                        <a href="https://amzn.to/4fJrXYL" target="_blank" class="btn btn-buy">Best Price</a>
+                    </div>
+                </div>
+            </div></div>
     </main>
 
     <footer>
-        <p>&copy; 2026 BG Tech. Unbiased Tech Reviews & Buying Guides.</p>
+        <p><a href="index.html">About</a> • <a href="index.html">Contact</a> • <a href="index.html">Privacy</a> • <a href="index.html">Disclaimer</a></p>
+        <p style="margin-top:10px;">&copy; 2026 BG Tech. All rights reserved.</p>
     </footer>
 </body>
 </html>
