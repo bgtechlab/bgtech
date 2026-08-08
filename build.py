@@ -12,104 +12,220 @@ def build_site():
     with open(PRODUCTS_JSON_PATH, "r", encoding="utf-8") as f:
         products = json.load(f)
 
+    # CSS for modern TechRadar / Tom's Guide layout
+    COMMON_CSS = """
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    
+    :root {
+        --bg-main: #F8FAFC;
+        --nav-bg: #0F172A;
+        --accent-blue: #2563EB;
+        --accent-green: #16A34A;
+        --text-dark: #0F172A;
+        --text-muted: #64748B;
+        --card-bg: #FFFFFF;
+        --border-color: #E2E8F0;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+    body { background-color: var(--bg-main); color: var(--text-dark); line-height: 1.6; }
+
+    /* Header & Navigation */
+    header { background: var(--nav-bg); color: white; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    .nav-container { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; }
+    .logo { font-size: 24px; font-weight: 800; color: #fff; text-decoration: none; letter-spacing: -0.5px; }
+    .logo span { color: var(--accent-blue); }
+    .nav-links { display: flex; gap: 24px; list-style: none; }
+    .nav-links a { color: #CBD5E1; text-decoration: none; font-weight: 500; font-size: 15px; transition: color 0.2s; }
+    .nav-links a:hover { color: #FFF; }
+
+    /* Container */
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+    /* Section Styling */
+    .section-title { font-size: 22px; font-weight: 700; margin: 35px 0 20px; display: flex; align-items: center; gap: 10px; color: var(--text-dark); border-bottom: 2px solid var(--border-color); padding-bottom: 10px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
+
+    /* Premium Product Cards */
+    .card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; transition: transform 0.2s, box-shadow 0.2s; }
+    .card:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.06); }
+    .card-img-wrapper { background: #F1F5F9; padding: 20px; height: 220px; display: flex; align-items: center; justify-content: center; }
+    .card-img-wrapper img { max-height: 100%; max-width: 100%; object-fit: contain; }
+    .card-content { padding: 20px; display: flex; flex-direction: column; flex-grow: 1; }
+    .badge { align-self: flex-start; background: #EFF6FF; color: var(--accent-blue); font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; margin-bottom: 10px; }
+    .card-title { font-size: 17px; font-weight: 700; color: var(--text-dark); text-decoration: none; margin-bottom: 8px; line-height: 1.3; }
+    .card-title:hover { color: var(--accent-blue); }
+    .rating { color: #F59E0B; font-size: 14px; font-weight: 600; margin-bottom: 12px; }
+    .price { font-size: 20px; font-weight: 800; color: var(--accent-green); margin-top: auto; margin-bottom: 15px; }
+    .card-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .btn { display: inline-block; text-align: center; padding: 10px 12px; border-radius: 6px; font-size: 13px; font-weight: 600; text-decoration: none; transition: 0.2s; }
+    .btn-review { background: #F1F5F9; color: var(--text-dark); }
+    .btn-review:hover { background: #E2E8F0; }
+    .btn-buy { background: var(--accent-blue); color: white; }
+    .btn-buy:hover { background: #1D4ED8; }
+
+    /* Footer */
+    footer { background: var(--nav-bg); color: #94A3B8; text-align: center; padding: 40px 20px; margin-top: 60px; font-size: 14px; }
+    footer a { color: #CBD5E1; text-decoration: none; margin: 0 10px; }
+    """
+
     # 1. Generate Product Detail Pages
     for product in products:
         product_slug = product["id"]
         prod_dir = os.path.join("products", product_slug)
         os.makedirs(prod_dir, exist_ok=True)
 
-        pros_html = "".join([f"<li>✅ {p}</li>" for p in product.get("pros", [])])
-        cons_html = "".join([f"<li>❌ {c}</li>" for c in product.get("cons", [])])
+        pros_html = "".join([f"<li style='margin-bottom:8px; color:#15803D;'>✓ {p}</li>" for p in product.get("pros", [])])
+        cons_html = "".join([f"<li style='margin-bottom:8px; color:#B91C1C;'>✕ {c}</li>" for c in product.get("cons", [])])
         
         specs_html = ""
         for key, val in product.get("specs", {}).items():
-            specs_html += f"<tr><td style='padding:8px;border:1px solid #ddd;font-weight:bold;'>{key}</td><td style='padding:8px;border:1px solid #ddd;'>{val}</td></tr>"
+            specs_html += f"<tr><td style='padding:12px; border-bottom:1px solid #E2E8F0; font-weight:600; color:#475569;'>{key}</td><td style='padding:12px; border-bottom:1px solid #E2E8F0; color:#0F172A;'>{val}</td></tr>"
 
         prod_html_content = f"""<!DOCTYPE html>
 <html lang="hi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{product['title']} - BG Tech</title>
-    <style>
-        body {{ font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f4f6f8; color: #333; }}
-        .container {{ max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }}
-        img {{ max-width: 100%; height: auto; border-radius: 8px; display: block; margin: auto; }}
-        .price {{ font-size: 24px; color: #d9534f; font-weight: bold; margin: 15px 0; }}
-        .btn-buy {{ display: inline-block; background: #ff9900; color: #fff; text-decoration: none; padding: 12px 25px; font-weight: bold; border-radius: 5px; margin-top: 15px; }}
-        .pros-cons {{ display: flex; gap: 20px; margin: 20px 0; flex-wrap: wrap; }}
-        .pros, .cons {{ flex: 1; min-width: 250px; background: #f9f9f9; padding: 15px; border-radius: 5px; }}
-        table {{ width: 100%; border-collapse: collapse; margin-top: 15px; }}
-    </style>
+    <title>{product['title']} - BG Tech Review</title>
+    <style>{COMMON_CSS}</style>
 </head>
 <body>
-    <div class="container">
-        <a href="../../index.html">← Back to Home</a>
-        <h1>{product['title']}</h1>
-        <img src="{product['image']}" alt="{product['short_name']}">
-        <div class="price">Price: {product['price']}</div>
-        <a href="{product['buy_url']}" target="_blank" class="btn-buy">🛒 Buy Now / Check Best Offer</a>
-        
-        <div class="pros-cons">
-            <div class="pros"><h3>Pros</h3><ul>{pros_html}</ul></div>
-            <div class="cons"><h3>Cons</h3><ul>{cons_html}</ul></div>
+    <header>
+        <div class="nav-container">
+            <a href="../../index.html" class="logo">BG <span>TECH</span></a>
+            <ul class="nav-links">
+                <li><a href="../../index.html">Home</a></li>
+                <li><a href="../../index.html#mobiles">Mobiles</a></li>
+                <li><a href="../../index.html#laptops">Laptops</a></li>
+            </ul>
+        </div>
+    </header>
+
+    <main class="container" style="max-width: 900px; margin-top: 30px;">
+        <span class="badge">{product.get('category', 'Gadgets')}</span>
+        <h1 style="font-size: 32px; font-weight: 800; margin: 10px 0;">{product['title']}</h1>
+        <div class="rating" style="font-size: 16px; margin-bottom: 20px;">★ {product.get('rating', '4.2 out of 5 stars')}</div>
+
+        <div style="background: white; border: 1px solid var(--border-color); border-radius: 12px; padding: 30px; text-align: center; margin-bottom: 30px;">
+            <img src="{product['image']}" alt="{product['short_name']}" style="max-height: 350px; width: auto; object-fit: contain;">
+            <div style="font-size: 28px; font-weight: 800; color: var(--accent-green); margin: 20px 0 10px;">{product['price']}</div>
+            <a href="{product['buy_url']}" target="_blank" class="btn btn-buy" style="font-size: 16px; padding: 14px 32px;">🛒 Check Best Price / Buy Now</a>
         </div>
 
-        <h3>Specifications</h3>
-        <table>{specs_html}</table>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;">
+            <div style="background:#F0FDF4; border:1px solid #BBF7D0; border-radius:12px; padding:20px;">
+                <h3 style="color:#166534; margin-bottom:12px;">Pros</h3>
+                <ul style="list-style:none;">{pros_html}</ul>
+            </div>
+            <div style="background:#FEF2F2; border:1px solid #FECACA; border-radius:12px; padding:20px;">
+                <h3 style="color:#991B1B; margin-bottom:12px;">Cons</h3>
+                <ul style="list-style:none;">{cons_html}</ul>
+            </div>
+        </div>
 
-        <div style="margin-top: 25px; line-height: 1.6;">
+        <div style="background: white; border: 1px solid var(--border-color); border-radius: 12px; padding: 25px; margin-bottom: 30px;">
+            <h3 style="margin-bottom: 15px; font-size: 20px;">Technical Specifications</h3>
+            <table style="width: 100%; border-collapse: collapse;">{specs_html}</table>
+        </div>
+
+        <div style="background: white; border: 1px solid var(--border-color); border-radius: 12px; padding: 25px; line-height: 1.8;">
+            <h3 style="margin-bottom: 15px; font-size: 20px;">Expert Verdict & Review</h3>
             {product.get('review_html', '')}
         </div>
-    </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 BG Tech. All rights reserved.</p>
+    </footer>
 </body>
 </html>"""
 
         with open(os.path.join(prod_dir, "index.html"), "w", encoding="utf-8") as f:
             f.write(prod_html_content)
 
-    # 2. Generate Homepage (index.html)
-    cards_html = ""
-    for product in products:
-        cards_html += f"""
-        <div style="border: 1px solid #ddd; border-radius: 8px; padding: 15px; margin-bottom: 20px; background: #fff; display: flex; gap: 20px; align-items: center; flex-wrap: wrap;">
-            <img src="{product['image']}" alt="{product['short_name']}" style="width: 150px; height: 150px; object-fit: contain; border-radius: 5px;">
-            <div style="flex: 1;">
-                <span style="background: #0073e6; color: white; padding: 3px 8px; border-radius: 3px; font-size: 12px;">{product.get('category', 'Gadgets')}</span>
-                <h2 style="margin: 10px 0 5px 0;"><a href="products/{product['id']}/" style="text-decoration: none; color: #333;">{product['short_name']}</a></h2>
-                <p style="color: #666; margin: 0 0 10px 0;">Rating: {product.get('rating', '4.2 out of 5 stars')}</p>
-                <div style="font-size: 20px; color: #d9534f; font-weight: bold;">{product['price']}</div>
-                <a href="products/{product['id']}/" style="display: inline-block; background: #0073e6; color: white; padding: 8px 15px; text-decoration: none; border-radius: 4px; margin-top: 10px; font-weight: bold;">Read Review & Deals →</a>
-            </div>
-        </div>"""
+    # Helper function to generate cards
+    def generate_cards(items):
+        html = ""
+        for p in items:
+            html += f"""
+            <div class="card">
+                <div class="card-img-wrapper">
+                    <img src="{p['image']}" alt="{p['short_name']}">
+                </div>
+                <div class="card-content">
+                    <span class="badge">{p.get('category', 'Gadgets')}</span>
+                    <a href="products/{p['id']}/" class="card-title">{p['short_name']}</a>
+                    <div class="rating">★ {p.get('rating', '4.2/5')}</div>
+                    <div class="price">{p['price']}</div>
+                    <div class="card-buttons">
+                        <a href="products/{p['id']}/" class="btn btn-review">Full Review</a>
+                        <a href="{p['buy_url']}" target="_blank" class="btn btn-buy">Best Price</a>
+                    </div>
+                </div>
+            </div>"""
+        return html
 
+    # Separate products by category
+    mobiles = [p for p in products if p.get('category') == 'Mobiles']
+    laptops = [p for p in products if p.get('category') == 'Laptops']
+
+    # 2. Generate Editorial Homepage (index.html)
     index_html_content = f"""<!DOCTYPE html>
 <html lang="hi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BG Tech - Best Tech Reviews & Deals</title>
-    <style>
-        body {{ font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f4f6f8; color: #333; }}
-        header {{ background: #1a1a2e; color: white; text-align: center; padding: 30px 15px; }}
-        .container {{ max-width: 900px; margin: 20px auto; padding: 0 15px; }}
-    </style>
+    <title>BG Tech - Expert Tech Reviews & Deals</title>
+    <style>{COMMON_CSS}</style>
 </head>
 <body>
     <header>
-        <h1>BG Tech</h1>
-        <p>Unbiased product reviews, specs breakdown, and best buying links.</p>
+        <div class="nav-container">
+            <a href="index.html" class="logo">BG <span>TECH</span></a>
+            <ul class="nav-links">
+                <li><a href="#trending">Trending</a></li>
+                <li><a href="#mobiles">Mobiles</a></li>
+                <li><a href="#laptops">Laptops</a></li>
+            </ul>
+        </div>
     </header>
-    <div class="container">
-        {cards_html}
-    </div>
+
+    <!-- Hero Section -->
+    <section style="background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%); color: white; padding: 60px 20px; text-align: center;">
+        <div style="max-width: 800px; margin: 0 auto;">
+            <h1 style="font-size: 40px; font-weight: 800; margin-bottom: 16px; letter-spacing: -1px;">Find The Best Tech Before You Buy</h1>
+            <p style="font-size: 18px; color: #94A3B8; margin-bottom: 28px;">Expert reviews, detailed specifications breakdown, and live deal tracking.</p>
+            <div style="display: flex; gap: 12px; justify-content: center;">
+                <a href="#trending" class="btn btn-buy" style="padding: 12px 24px; font-size: 15px;">Explore Latest Reviews</a>
+            </div>
+        </div>
+    </section>
+
+    <main class="container">
+        <!-- 🔥 Trending Tech -->
+        <h2 class="section-title" id="trending">🔥 Trending Reviews</h2>
+        <div class="grid">
+            {generate_cards(products[:4])}
+        </div>
+
+        <!-- 📱 Latest Smartphones -->
+        {f'<h2 class="section-title" id="mobiles">📱 Smartphones</h2><div class="grid">{generate_cards(mobiles)}</div>' if mobiles else ''}
+
+        <!-- 💻 Best Laptops -->
+        {f'<h2 class="section-title" id="laptops">💻 Laptops & Computers</h2><div class="grid">{generate_cards(laptops)}</div>' if laptops else ''}
+    </main>
+
+    <footer>
+        <p>&copy; 2026 BG Tech. Unbiased Tech Reviews & Buying Guides.</p>
+    </footer>
 </body>
 </html>"""
 
     with open(os.path.join(OUTPUT_DIR, "index.html"), "w", encoding="utf-8") as f:
         f.write(index_html_content)
 
-    print("✅ Successfully built index.html and product pages!")
+    print("✅ Successfully built modern editorial site structure!")
 
 if __name__ == "__main__":
     build_site()
