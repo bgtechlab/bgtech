@@ -19,6 +19,7 @@ def build_site():
     :root {
         --bg-main: #F8FAFC;
         --nav-bg: #0F172A;
+        --nav-sub-bg: #1E293B;
         --accent-blue: #2563EB;
         --accent-green: #16A34A;
         --text-dark: #0F172A;
@@ -35,9 +36,13 @@ def build_site():
     .nav-container { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; }
     .logo { font-size: 24px; font-weight: 800; color: #fff; text-decoration: none; letter-spacing: -0.5px; }
     .logo span { color: var(--accent-blue); }
-    .nav-links { display: flex; gap: 24px; list-style: none; }
-    .nav-links a { color: #CBD5E1; text-decoration: none; font-weight: 500; font-size: 15px; transition: color 0.2s; }
-    .nav-links a:hover { color: #FFF; }
+
+    /* Scrollable Sub-Header Navigation Bars */
+    .sub-nav { background: var(--nav-sub-bg); border-top: 1px solid rgba(255,255,255,0.08); overflow-x: auto; white-space: nowrap; scrollbar-width: none; }
+    .sub-nav::-webkit-scrollbar { display: none; }
+    .sub-nav-container { max-width: 1200px; margin: 0 auto; display: flex; gap: 18px; padding: 10px 20px; }
+    .sub-nav-container a { color: #CBD5E1; text-decoration: none; font-size: 13px; font-weight: 500; transition: color 0.2s; }
+    .sub-nav-container a:hover { color: #38BDF8; }
 
     /* Container */
     .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
@@ -69,6 +74,28 @@ def build_site():
     footer a { color: #CBD5E1; text-decoration: none; margin: 0 10px; }
     """
 
+    NAV_MENU_HTML = """
+    <div class="sub-nav">
+        <div class="sub-nav-container">
+            <a href="../../index.html">Home</a>
+            <a href="../../index.html#mobiles">Mobiles</a>
+            <a href="../../index.html#laptops">Laptops</a>
+            <a href="../../index.html#headphones">Headphones</a>
+            <a href="../../index.html#wearables">Smart Wearables</a>
+            <a href="../../index.html#audio">Audio & Sound</a>
+            <a href="../../index.html#printers">Printers</a>
+            <a href="../../index.html#new">New Releases</a>
+            <a href="../../index.html#reviews">Tech Review</a>
+            <a href="../../index.html#electronics">Electronics</a>
+            <a href="../../index.html#bestsellers">Best Sellers</a>
+            <a href="../../index.html#gadgets">Gadgets</a>
+            <a href="../../index.html#deals">Deals</a>
+        </div>
+    </div>
+    """
+
+    NAV_MENU_HOME_HTML = NAV_MENU_HTML.replace("../../index.html", "index.html")
+
     # 1. Generate Product Detail Pages
     for product in products:
         product_slug = product["id"]
@@ -94,12 +121,8 @@ def build_site():
     <header>
         <div class="nav-container">
             <a href="../../index.html" class="logo">BG <span>TECH</span></a>
-            <ul class="nav-links">
-                <li><a href="../../index.html">Home</a></li>
-                <li><a href="../../index.html#mobiles">Mobiles</a></li>
-                <li><a href="../../index.html#laptops">Laptops</a></li>
-            </ul>
         </div>
+        {NAV_MENU_HTML}
     </header>
 
     <main class="container" style="max-width: 900px; margin-top: 30px;">
@@ -136,7 +159,8 @@ def build_site():
     </main>
 
     <footer>
-        <p>&copy; 2026 BG Tech. All rights reserved.</p>
+        <p><a href="../../index.html">About</a> • <a href="../../index.html">Contact</a> • <a href="../../index.html">Privacy</a> • <a href="../../index.html">Disclaimer</a></p>
+        <p style="margin-top:10px;">&copy; 2026 BG Tech. All rights reserved.</p>
     </footer>
 </body>
 </html>"""
@@ -166,9 +190,11 @@ def build_site():
             </div>"""
         return html
 
-    # Separate products by category
+    # Category Filters
     mobiles = [p for p in products if p.get('category') == 'Mobiles']
     laptops = [p for p in products if p.get('category') == 'Laptops']
+    headphones = [p for p in products if p.get('category') in ['Headphones', 'Audio']]
+    gadgets = [p for p in products if p.get('category') not in ['Mobiles', 'Laptops', 'Headphones', 'Audio']]
 
     # 2. Generate Editorial Homepage (index.html)
     index_html_content = f"""<!DOCTYPE html>
@@ -183,41 +209,44 @@ def build_site():
     <header>
         <div class="nav-container">
             <a href="index.html" class="logo">BG <span>TECH</span></a>
-            <ul class="nav-links">
-                <li><a href="#trending">Trending</a></li>
-                <li><a href="#mobiles">Mobiles</a></li>
-                <li><a href="#laptops">Laptops</a></li>
-            </ul>
         </div>
+        {NAV_MENU_HOME_HTML}
     </header>
 
     <!-- Hero Section -->
     <section style="background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%); color: white; padding: 60px 20px; text-align: center;">
         <div style="max-width: 800px; margin: 0 auto;">
-            <h1 style="font-size: 40px; font-weight: 800; margin-bottom: 16px; letter-spacing: -1px;">Find The Best Tech Before You Buy</h1>
-            <p style="font-size: 18px; color: #94A3B8; margin-bottom: 28px;">Expert reviews, detailed specifications breakdown, and live deal tracking.</p>
+            <h1 style="font-size: 40px; font-weight: 800; margin-bottom: 16px; letter-spacing: -1px;">FIND THE BEST TECH BEFORE YOU BUY</h1>
+            <p style="font-size: 18px; color: #94A3B8; margin-bottom: 28px;">Expert Reviews • Specs • Best Deals</p>
             <div style="display: flex; gap: 12px; justify-content: center;">
-                <a href="#trending" class="btn btn-buy" style="padding: 12px 24px; font-size: 15px;">Explore Latest Reviews</a>
+                <a href="#trending" class="btn btn-buy" style="padding: 12px 24px; font-size: 15px;">Explore Reviews</a>
             </div>
         </div>
     </section>
 
     <main class="container">
         <!-- 🔥 Trending Tech -->
-        <h2 class="section-title" id="trending">🔥 Trending Reviews</h2>
+        <h2 class="section-title" id="trending">🔥 Trending Tech</h2>
         <div class="grid">
             {generate_cards(products[:4])}
         </div>
 
         <!-- 📱 Latest Smartphones -->
-        {f'<h2 class="section-title" id="mobiles">📱 Smartphones</h2><div class="grid">{generate_cards(mobiles)}</div>' if mobiles else ''}
+        {f'<h2 class="section-title" id="mobiles">📱 Latest Smartphones</h2><div class="grid">{generate_cards(mobiles)}</div>' if mobiles else ''}
 
-        <!-- 💻 Best Laptops -->
+        <!-- 💻 Laptops & Computers -->
         {f'<h2 class="section-title" id="laptops">💻 Laptops & Computers</h2><div class="grid">{generate_cards(laptops)}</div>' if laptops else ''}
+
+        <!-- 🎧 Headphones & Audio -->
+        {f'<h2 class="section-title" id="headphones">🎧 Headphones & Audio</h2><div class="grid">{generate_cards(headphones)}</div>' if headphones else ''}
+
+        <!-- ⚙️ Gadgets & Other Tech -->
+        {f'<h2 class="section-title" id="gadgets">⚙️ Other Electronics & Gadgets</h2><div class="grid">{generate_cards(gadgets)}</div>' if gadgets else ''}
     </main>
 
     <footer>
-        <p>&copy; 2026 BG Tech. Unbiased Tech Reviews & Buying Guides.</p>
+        <p><a href="index.html">About</a> • <a href="index.html">Contact</a> • <a href="index.html">Privacy</a> • <a href="index.html">Disclaimer</a></p>
+        <p style="margin-top:10px;">&copy; 2026 BG Tech. All rights reserved.</p>
     </footer>
 </body>
 </html>"""
@@ -225,7 +254,7 @@ def build_site():
     with open(os.path.join(OUTPUT_DIR, "index.html"), "w", encoding="utf-8") as f:
         f.write(index_html_content)
 
-    print("✅ Successfully built modern editorial site structure!")
+    print("✅ Successfully updated website with full category navigation bar!")
 
 if __name__ == "__main__":
     build_site()

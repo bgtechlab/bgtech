@@ -10,6 +10,7 @@
     :root {
         --bg-main: #F8FAFC;
         --nav-bg: #0F172A;
+        --nav-sub-bg: #1E293B;
         --accent-blue: #2563EB;
         --accent-green: #16A34A;
         --text-dark: #0F172A;
@@ -26,9 +27,13 @@
     .nav-container { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; }
     .logo { font-size: 24px; font-weight: 800; color: #fff; text-decoration: none; letter-spacing: -0.5px; }
     .logo span { color: var(--accent-blue); }
-    .nav-links { display: flex; gap: 24px; list-style: none; }
-    .nav-links a { color: #CBD5E1; text-decoration: none; font-weight: 500; font-size: 15px; transition: color 0.2s; }
-    .nav-links a:hover { color: #FFF; }
+
+    /* Scrollable Sub-Header Navigation Bars */
+    .sub-nav { background: var(--nav-sub-bg); border-top: 1px solid rgba(255,255,255,0.08); overflow-x: auto; white-space: nowrap; scrollbar-width: none; }
+    .sub-nav::-webkit-scrollbar { display: none; }
+    .sub-nav-container { max-width: 1200px; margin: 0 auto; display: flex; gap: 18px; padding: 10px 20px; }
+    .sub-nav-container a { color: #CBD5E1; text-decoration: none; font-size: 13px; font-weight: 500; transition: color 0.2s; }
+    .sub-nav-container a:hover { color: #38BDF8; }
 
     /* Container */
     .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
@@ -64,12 +69,26 @@
     <header>
         <div class="nav-container">
             <a href="../../index.html" class="logo">BG <span>TECH</span></a>
-            <ul class="nav-links">
-                <li><a href="../../index.html">Home</a></li>
-                <li><a href="../../index.html#mobiles">Mobiles</a></li>
-                <li><a href="../../index.html#laptops">Laptops</a></li>
-            </ul>
         </div>
+        
+    <div class="sub-nav">
+        <div class="sub-nav-container">
+            <a href="../../index.html">Home</a>
+            <a href="../../index.html#mobiles">Mobiles</a>
+            <a href="../../index.html#laptops">Laptops</a>
+            <a href="../../index.html#headphones">Headphones</a>
+            <a href="../../index.html#wearables">Smart Wearables</a>
+            <a href="../../index.html#audio">Audio & Sound</a>
+            <a href="../../index.html#printers">Printers</a>
+            <a href="../../index.html#new">New Releases</a>
+            <a href="../../index.html#reviews">Tech Review</a>
+            <a href="../../index.html#electronics">Electronics</a>
+            <a href="../../index.html#bestsellers">Best Sellers</a>
+            <a href="../../index.html#gadgets">Gadgets</a>
+            <a href="../../index.html#deals">Deals</a>
+        </div>
+    </div>
+    
     </header>
 
     <main class="container" style="max-width: 900px; margin-top: 30px;">
@@ -106,7 +125,8 @@
     </main>
 
     <footer>
-        <p>&copy; 2026 BG Tech. All rights reserved.</p>
+        <p><a href="../../index.html">About</a> • <a href="../../index.html">Contact</a> • <a href="../../index.html">Privacy</a> • <a href="../../index.html">Disclaimer</a></p>
+        <p style="margin-top:10px;">&copy; 2026 BG Tech. All rights reserved.</p>
     </footer>
 </body>
 </html>
