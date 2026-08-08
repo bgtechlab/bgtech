@@ -1,0 +1,54 @@
+[
+  {
+    "id": "lava-bold-n2-lite",
+    "title": "Lava Bold N2 Lite Review (2026)",
+    "short_name": "Lava Bold N2 Lite",
+    "category": "Mobiles",
+    "price": "₹8749",
+    "rating": "4.2 out of 5 stars",
+    "image": "https://m.media-amazon.com/images/I/31hIl2V7GyL.SX300_QL70_ML2_.jpg",
+    "buy_url": "https://amzn.to/4fKyCBT",
+    "pros": [
+      "Large 6.75\" HD+ display for immersive viewing",
+      "Good camera performance with 13MP AI dual rear camera",
+      "Long-lasting 5000mAh battery with Type-C charging"
+    ],
+    "cons": [
+      "Only 3GB RAM may limit heavy multitasking",
+      "Average build quality compared to higher-end models"
+    ],
+    "specs": {
+      "Performance": "3GB RAM with expandable storage up to 8GB, running on Android 15 Go Edition for smooth performance.",
+      "Display/Build": "Features a large 6.75\" HD+ punch-hole display with a 60Hz refresh rate, though build quality is modest.",
+      "Battery/Features": "Equipped with a 5000mAh battery for extended use, supports fingerprint and face unlock for security."
+    },
+    "review_html": "<h3>Overview</h3><p>Lava Bold N2 Lite ek budget-friendly smartphone hai jo 6.75\" HD+ display, 13MP AI dual rear camera aur 5000mAh battery ke saath aata hai. Yeh device Android 15 Go Edition par chalta hai aur isme 3GB RAM aur 64GB storage hai, jisse multitasking smooth hoti hai. Type-C charging se battery jaldi charge hoti hai.</p><h3>Why Buy This?</h3><p>Agar aapko ek affordable smartphone chahiye jo achi display aur camera performance de, toh Lava Bold N2 Lite aapke liye ek accha option hai, lekin heavy multitasking ke liye shayad yeh thoda limit ho sakta hai.</p>",
+    "date": "2026-08-08"
+  },
+  {
+    "id": "best-tech-gadget-deal",
+    "title": "Best Tech Gadget Deal Review (2026)",
+    "short_name": "Best Tech Gadget Deal",
+    "category": "Gadgets",
+    "price": "Check Best Price",
+    "rating": "4.2 out of 5 stars",
+    "image": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=1000&auto=format&fit=crop",
+    "buy_url": "https://amzn.to/4fJrXYL",
+    "pros": [
+      "Affordable pricing",
+      "Wide range of features",
+      "User-friendly interface"
+    ],
+    "cons": [
+      "Limited availability",
+      "May lack premium build quality"
+    ],
+    "specs": {
+      "Performance": "Satisfactory performance for daily tasks and multitasking.",
+      "Display/Build": "Decent display quality with a solid build, though not premium.",
+      "Battery/Features": "Good battery life with essential features included."
+    },
+    "review_html": "<h3>Overview</h3><p>Yeh product ek bahut hi accha tech gadget deal hai jo budget-friendly hai aur isme kaafi saari features hain. Iska user interface bhi kaafi simple aur easy to use hai, jo beginners ke liye perfect hai.</p><h3>Why Buy This?</h3><p>Agar aap ek reliable aur affordable gadget dhoond rahe hain, toh yeh deal aapke liye best hai. Iski features aur performance aapko zaroor pasand aayegi.</p>",
+    "date": "2026-08-08"
+  }
+]
