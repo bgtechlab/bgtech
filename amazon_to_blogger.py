@@ -289,15 +289,20 @@ async def process_and_publish(buy_url):
 
     # 5. Make.com Webhook
     try:
+        # Fallback image verification
+        final_image_url = product.get("image")
+        if not final_image_url or not final_image_url.startswith("http"):
+            final_image_url = DEFAULT_FALLBACK_IMAGE
+
         payload = {
             "title": short_name,
-            "image_url": product["image"],
+            "image_url": final_image_url,
             "deal_url": page_url,
             "amazon_url": buy_url,
             "price": product["price"]
         }
-        requests.post(MAKE_WEBHOOK_URL, json=payload, timeout=10)
-        logging.info("🎉 Make.com Webhook Triggered!")
+        response = requests.post(MAKE_WEBHOOK_URL, json=payload, timeout=10)
+        logging.info(f"🎉 Make.com Webhook Triggered! Status: {response.status_code}")
     except Exception as e:
         logging.error(f"⚠️ Webhook Error: {e}")
 
