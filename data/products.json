@@ -6,7 +6,7 @@
     "category": "Mobiles",
     "price": "₹15,999",
     "rating": "4.2 out of 5 stars",
-    "image": "https://m.media-amazon.com/images/I/718bfE5jMRL._SL1500_.jpg",
+    "image": "https://m.media-amazon.com/images/I/718bfE5jMRL._SX300_.jpg",
     "buy_url": "https://www.amazon.in/",
     "pros": ["120Hz Super AMOLED Display", "6000 mAh Battery", "50MP OIS Camera"],
     "cons": ["No Charger in Box", "Slightly Heavy"],
@@ -14,7 +14,7 @@
       "Display": "6.5 inch FHD+ AMOLED",
       "Processor": "Exynos 1280"
     },
-    "review_html": "<p>Samsung Galaxy M34 5G is a solid budget phone with great battery backup and brilliant display.</p>",
+    "review_html": "<p>Samsung Galaxy M34 5G offers great value with a vibrant 120Hz display and 6000mAh battery.</p>",
     "date": "2026-08-08"
   }
 ]
