@@ -1,0 +1,27 @@
+import json
+import os
+from jinja2 import Environment, FileSystemLoader
+
+# Load Data
+with open('data/products.json', 'r', encoding='utf-8') as f:
+    products = json.load(f)
+
+env = Environment(loader=FileSystemLoader('templates'))
+
+# 1. Generate Product Pages
+product_template = env.get_template('product.html')
+for prod in products:
+    out_dir = os.path.join('products', prod['id'])
+    os.makedirs(out_dir, exist_ok=True)
+    
+    rendered_html = product_template.render(product=prod)
+    with open(os.path.join(out_dir, 'index.html'), 'w', encoding='utf-8') as f:
+        f.write(rendered_html)
+
+# 2. Generate Homepage
+home_template = env.get_template('index.html')
+home_html = home_template.render(products=products)
+with open('index.html', 'w', encoding='utf-8') as f:
+    f.write(home_html)
+
+print("✅ Website Built Successfully!")

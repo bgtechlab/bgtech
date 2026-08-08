@@ -1,0 +1,5 @@
+requests
+beautifulsoup4
+g4f
+python-telegram-bot
+jinja2
