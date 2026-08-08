@@ -7,9 +7,12 @@ import re
 import subprocess
 import time
 from bs4 import BeautifulSoup
+from dotenv import load_dotenv
 from g4f.client import Client
 import requests
 from telegram import Bot
+
+load_dotenv()
 
 # Logging Setup
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -19,7 +22,7 @@ TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "8861999778:AAGWmE_Qg-mdWfU
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "@bglarenup")
 MAKE_WEBHOOK_URL = os.getenv("MAKE_WEBHOOK_URL", "https://hook.eu1.make.com/your_webhook_id")
 
-SITE_BASE_URL = os.getenv("SITE_BASE_URL", "https://officialeducation369-tech.github.io/bgtech")
+SITE_BASE_URL = os.getenv("SITE_BASE_URL", "https://bgtechlab.github.io/bgtech")
 DEFAULT_FALLBACK_IMAGE = "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=1000&auto=format&fit=crop"
 
 PRODUCTS_JSON_PATH = os.path.join("data", "products.json")
@@ -90,7 +93,6 @@ def scrape_product_details(url):
         res = session.get(res_url, allow_redirects=True, timeout=20)
         soup = BeautifulSoup(res.content, "html.parser")
 
-        # Title
         title_elem = (
             soup.find("span", {"id": "productTitle"}) 
             or soup.find("span", {"class": "VU-Tz5"}) 
@@ -102,7 +104,6 @@ def scrape_product_details(url):
             clean_title = re.sub(r"\s*:\s*Amazon\..*$", "", clean_title, flags=re.IGNORECASE)
             data["title"] = clean_title
 
-        # Image
         img_elem = soup.find("img", {"id": "landingImage"}) or soup.find("meta", {"property": "og:image"})
         if img_elem:
             src = img_elem.get("content") if img_elem.name == "meta" else img_elem.get("src", "")
@@ -111,14 +112,12 @@ def scrape_product_details(url):
         else:
             data["image"] = DEFAULT_FALLBACK_IMAGE
 
-        # Price
         price_elem = soup.find("span", {"class": "a-price-whole"}) or soup.find("div", {"class": "Nx9bqj CxhGGd"})
         if price_elem:
             clean_price = re.sub(r"[^\d]", "", price_elem.get_text())
             if clean_price:
                 data["price"] = f"₹{clean_price}"
 
-        # Bullets
         bullet_elems = soup.find(id="feature-bullets")
         if bullet_elems:
             bullets_list = [li.get_text().strip() for li in bullet_elems.find_all("li") if li.get_text().strip()]
@@ -130,7 +129,6 @@ def scrape_product_details(url):
     if not data["title"]:
         data["title"] = "Best Tech Gadget Deal"
 
-    # Category Detection
     title_lower = data["title"].lower()
     if any(w in title_lower for w in ["laptop", "macbook"]):
         data["category"] = "Laptops"
@@ -209,7 +207,6 @@ def save_to_products_json(product_entry):
         except Exception:
             products = []
 
-    # Update if ID exists, else insert
     existing_index = next((i for i, p in enumerate(products) if p["id"] == product_entry["id"]), None)
     if existing_index is not None:
         products[existing_index] = product_entry
@@ -228,15 +225,12 @@ async def process_and_publish(buy_url):
         logging.error("❌ Product scraping failed.")
         return
 
-    # Name Clean & Slug Generation
     clean_raw_title = re.sub(r"\s*:\s*Amazon\..*$", "", product['title'], flags=re.IGNORECASE)
     short_name = re.split(r'[,|(-]', clean_raw_title)[0].strip()
     slug = re.sub(r'[^a-z0-9]+', '-', short_name.lower()).strip('-')
 
-    # AI Content
     ai_data = generate_product_json_content(short_name, product)
 
-    # Product Page URL on GitHub Pages
     page_url = f"{SITE_BASE_URL}/products/{slug}/"
 
     product_entry = {
@@ -258,19 +252,28 @@ async def process_and_publish(buy_url):
     # 1. Save JSON
     save_to_products_json(product_entry)
 
-    # 2. AUTO-PUSH TO GITHUB (PATH-INDEPENDENT FIX)
+    # 2. Build HTML Pages Automatically (If build.py exists)
+    if os.path.exists("build.py"):
+        try:
+            logging.info("🔨 Generating Static HTML Pages (Running build.py)...")
+            subprocess.run(["python", "build.py"], check=True)
+            logging.info("✅ Static Pages Built!")
+        except Exception as e:
+            logging.error(f"⚠️ build.py execution failed: {e}")
+
+    # 3. AUTO-PUSH TO GITHUB
     try:
         logging.info("🚀 Pushing changes to GitHub automatically...")
         git_executable = r'"C:\Program Files\Git\cmd\git.exe"' if os.path.exists(r"C:\Program Files\Git\cmd\git.exe") else "git"
         
-        subprocess.run(f"{git_executable} add data/products.json", shell=True, check=True)
+        subprocess.run(f"{git_executable} add .", shell=True, check=True)
         subprocess.run(f'{git_executable} commit -m "Auto-add product: {short_name}"', shell=True, check=True)
         subprocess.run(f"{git_executable} push origin main", shell=True, check=True)
         logging.info("✅ GitHub Push Successful!")
     except Exception as e:
         logging.error(f"⚠️ Auto Git Push Failed: {e}")
 
-    # 3. Telegram Post
+    # 4. Telegram Post
     tg_caption = f"🔥 <b>New Review Alert!</b>\n\n📱 <b>{short_name}</b>\n⭐️ <b>Rating:</b> {product['rating']}\n💰 <b>Price:</b> {product['price']}\n\n📖 <b>Read Review:</b>\n{page_url}\n\n🛒 <b>Buy on Store:</b>\n{buy_url}"
     try:
         async with Bot(token=TELEGRAM_BOT_TOKEN) as tg_bot:
@@ -284,7 +287,7 @@ async def process_and_publish(buy_url):
     except Exception as e:
         logging.error(f"⚠️ Telegram Error: {e}")
 
-    # 4. Make.com Webhook
+    # 5. Make.com Webhook
     try:
         payload = {
             "title": short_name,
