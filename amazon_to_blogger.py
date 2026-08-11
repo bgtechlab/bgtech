@@ -287,9 +287,25 @@ async def process_and_publish(buy_url):
     except Exception as e:
         logging.error(f"⚠️ Telegram Error: {e}")
 
-    # 5. Make.com Webhook
+    # 5. Make.com Webhook & Social Caption
+    # --- SOCIAL CAPTION GENERATOR ---
+    social_prompt = f"""
+    Write an attractive social media caption for Facebook, Pinterest, and Instagram for this product:
+    Title: {short_name}
+    Price: {product['price']}
+    
+    Format EXACTLY like this:
+    Unleash the power of performance with the {short_name}! 🚀 With top-tier features and sleek design, it's built to keep up with your lifestyle. Get yours online at the best price today!
+    
+    #TechDeals #{short_name.replace(' ', '')} #BestDeals #Gadgets #AmazonDeals
+    """
+    
+    social_caption = get_ai_response(social_prompt)
+    if not social_caption or len(social_caption.strip()) < 20:
+        social_caption = f"Unleash the power of performance with the {short_name}! 🚀 Get yours online at the best price {product['price']} today!\n\n#TechDeals #BestDeals #AmazonFinds"
+
+    # --- MAKE.COM WEBHOOK PAYLOAD ---
     try:
-        # Fallback image verification
         final_image_url = product.get("image")
         if not final_image_url or not final_image_url.startswith("http"):
             final_image_url = DEFAULT_FALLBACK_IMAGE
@@ -297,6 +313,9 @@ async def process_and_publish(buy_url):
         payload = {
             "title": short_name,
             "image_url": final_image_url,
+            "caption": social_caption,          # Exact caption string
+            "message": social_caption,          # FB Text Field Format
+            "social_caption": social_caption,   # Alternative Mapping Key
             "deal_url": page_url,
             "amazon_url": buy_url,
             "price": product["price"]
