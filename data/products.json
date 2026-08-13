@@ -1,5 +1,31 @@
 [
   {
+    "id": "shopping-cart",
+    "title": "Shopping Cart Review (2026)",
+    "short_name": "Shopping Cart",
+    "category": "Gadgets",
+    "price": "Check Best Price",
+    "rating": "4.2 out of 5 stars",
+    "image": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=1000&auto=format&fit=crop",
+    "buy_url": "https://fktr.in/LB0sBRe",
+    "pros": [
+      "User-friendly interface",
+      "Wide range of products",
+      "Secure payment options"
+    ],
+    "cons": [
+      "Occasional loading issues",
+      "Limited customer support hours"
+    ],
+    "specs": {
+      "Performance": "Fast loading times with minimal lag during peak hours.",
+      "Display/Build": "Responsive design optimized for mobile and desktop.",
+      "Battery/Features": "No battery as this is a web-based service; features include wish lists and order tracking."
+    },
+    "review_html": "<h3>Overview</h3><p>Shopping Cart on Flipkart.com offers a seamless experience for online shopping. Isme aap easily products browse kar sakte hain aur apne favorite items cart mein add kar sakte hain. User interface bahut hi intuitive hai, jo naye users ke liye bhi easy hai.</p><h3>Why Buy This?</h3><p>Agar aapko ek reliable aur diverse shopping platform chahiye, toh Flipkart ka Shopping Cart aapke liye best choice hai. Ye secure payment options aur wide product range ke sath aata hai, jo aapko zaroor pasand aayega.</p>",
+    "date": "2026-08-13"
+  },
+  {
     "id": "motorola-g57-power-5g",
     "title": "MOTOROLA g57 power 5G Review (2026)",
     "short_name": "MOTOROLA g57 power 5G",
