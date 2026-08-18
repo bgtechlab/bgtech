@@ -70,13 +70,22 @@ def unshorten_amazon_url(url, session):
 
     return url
 
+def clean_image_url(src):
+    if not src:
+        return ""
+    # Clean up Amazon dynamic resolution tags
+    clean_src = re.sub(r"\._SX\d+_|\._SY\d+_|\._AC_UL\d+_|\._UX\d+_|\._.*_.", ".", src)
+    # Clean up Flipkart thumbnail resolution tags
+    clean_src = re.sub(r"/image/\d+/\d+/", "/image/832/832/", clean_src)
+    return clean_src
+
 def scrape_product_details(url):
     logging.info(f"🔄 Scraping Product: {url[:60]}...")
     data = {
         "title": "",
         "price": "Check Best Price",
         "rating": "4.2 out of 5 stars",
-        "image": "",
+        "images": [],
         "bullets": "",
         "category": "Gadgets"
     }
@@ -93,6 +102,7 @@ def scrape_product_details(url):
         res = session.get(res_url, allow_redirects=True, timeout=20)
         soup = BeautifulSoup(res.content, "html.parser")
 
+        # 1. Scraping Title
         title_elem = (
             soup.find("span", {"id": "productTitle"}) 
             or soup.find("span", {"class": "VU-Tz5"}) 
@@ -104,20 +114,57 @@ def scrape_product_details(url):
             clean_title = re.sub(r"\s*:\s*Amazon\..*$", "", clean_title, flags=re.IGNORECASE)
             data["title"] = clean_title
 
-        img_elem = soup.find("img", {"id": "landingImage"}) or soup.find("meta", {"property": "og:image"})
-        if img_elem:
-            src = img_elem.get("content") if img_elem.name == "meta" else img_elem.get("src", "")
-            src = re.sub(r"\._SX\d+_|\._SY\d+_|\._AC_UL\d+_|\._UX\d+_|\._.*_.", ".", src)
-            data["image"] = src
-        else:
-            data["image"] = DEFAULT_FALLBACK_IMAGE
+        # 2. Scraping Multiple Images (4-5 Images)
+        images = []
+        
+        # Strategy A: Main OG Image First
+        og_img = soup.find("meta", {"property": "og:image"})
+        if og_img and og_img.get("content"):
+            images.append(clean_image_url(og_img.get("content")))
 
+        # Strategy B: Amazon Image Gallery Dynamic JSON Data
+        script_imgs = re.findall(r'"hiRes":"(https://m.media-amazon.com/images/I/[^"]+)"', res.text)
+        if not script_imgs:
+            script_imgs = re.findall(r'"large":"(https://m.media-amazon.com/images/I/[^"]+)"', res.text)
+            
+        for img_url in script_imgs:
+            cleaned = clean_image_url(img_url)
+            if cleaned and cleaned not in images:
+                images.append(cleaned)
+
+        # Strategy C: Flipkart Thumbnail Elements
+        fk_imgs = soup.find_all("img", {"class": ["_0D5CY0", "q6D3P8", "_2r_T1I"]})
+        for fk in fk_imgs:
+            src = fk.get("src", "")
+            cleaned = clean_image_url(src)
+            if cleaned and cleaned not in images and "placeholder" not in cleaned:
+                images.append(cleaned)
+
+        # Fallback Strategy: General High-Res Image Tag Extraction
+        if len(images) < 2:
+            all_imgs = soup.find_all("img")
+            for i in all_imgs:
+                src = i.get("src", "")
+                if ("media-amazon.com/images/I/" in src or "flixcart.com/image/" in src) and not any(x in src for x in ["icon", "logo", "sprite", "GIF"]):
+                    cleaned = clean_image_url(src)
+                    if cleaned and cleaned not in images:
+                        images.append(cleaned)
+
+        # Filter and Limit to 5 high-res unique images max
+        valid_images = [img for img in images if img.startswith("http")][:5]
+        if not valid_images:
+            valid_images = [DEFAULT_FALLBACK_IMAGE]
+
+        data["images"] = valid_images
+
+        # 3. Scraping Price
         price_elem = soup.find("span", {"class": "a-price-whole"}) or soup.find("div", {"class": "Nx9bqj CxhGGd"})
         if price_elem:
             clean_price = re.sub(r"[^\d]", "", price_elem.get_text())
             if clean_price:
                 data["price"] = f"₹{clean_price}"
 
+        # 4. Scraping Bullets/Features
         bullet_elems = soup.find(id="feature-bullets")
         if bullet_elems:
             bullets_list = [li.get_text().strip() for li in bullet_elems.find_all("li") if li.get_text().strip()]
@@ -159,13 +206,15 @@ def get_ai_response(prompt):
 
 def generate_product_json_content(short_name, product_data):
     prompt = f"""
-    Act as a tech review expert. Create a detailed structured review for the product below in JSON format.
+    Act as a professional tech review expert. Create a high-ranking, SEO-optimized detailed article/review for the product below in JSON format.
     
     PRODUCT DETAILS:
     - Name: {short_name}
     - Full Title: {product_data['title']}
     - Price: {product_data['price']}
     - Features: {product_data['bullets']}
+
+    IMPORTANT: Do NOT include any image tags (<img>) inside the review_html body.
 
     OUTPUT STRICTLY VALID JSON ONLY (NO Markdown, NO code blocks, NO standard text).
     
@@ -178,7 +227,7 @@ def generate_product_json_content(short_name, product_data):
             "Display/Build": "Brief details",
             "Battery/Features": "Brief details"
         }},
-        "review_html": "<h3>Overview</h3><p>Detailed review paragraph in Hinglish...</p><h3>Why Buy This?</h3><p>Verdict paragraph...</p>"
+        "review_html": "<h3>Overview</h3><p>Detailed SEO rich review paragraph in Hinglish...</p><h3>Key Highlights & Performance</h3><p>Detailed paragraph...</p><h3>Why Buy This?</h3><p>Final buying decision paragraph...</p>"
     }}
     """
     raw_ai = get_ai_response(prompt)
@@ -192,7 +241,7 @@ def generate_product_json_content(short_name, product_data):
             "pros": ["High Build Quality", "Great Performance"],
             "cons": ["Average Battery Life"],
             "specs": {"General": "Standard Specifications"},
-            "review_html": f"<p>{short_name} offers great value for money in its segment.</p>"
+            "review_html": f"<h3>Overview</h3><p>{short_name} offers great value for money in its segment.</p>"
         }
 
 # ================= 4. JSON DATA MANAGER =================
@@ -233,6 +282,9 @@ async def process_and_publish(buy_url):
 
     page_url = f"{SITE_BASE_URL}/products/{slug}/"
 
+    # Main image fallback logic
+    main_image = product["images"][0] if product.get("images") else DEFAULT_FALLBACK_IMAGE
+
     product_entry = {
         "id": slug,
         "title": f"{short_name} Review (2026)",
@@ -240,7 +292,8 @@ async def process_and_publish(buy_url):
         "category": product["category"],
         "price": product["price"],
         "rating": product["rating"],
-        "image": product["image"],
+        "image": main_image,             # Main thumbnail image
+        "images": product["images"],     # Array of 4-5 images for sidebar display
         "buy_url": buy_url,
         "pros": ai_data.get("pros", []),
         "cons": ai_data.get("cons", []),
@@ -279,7 +332,7 @@ async def process_and_publish(buy_url):
         async with Bot(token=TELEGRAM_BOT_TOKEN) as tg_bot:
             await tg_bot.send_photo(
                 chat_id=TELEGRAM_CHAT_ID,
-                photo=product["image"],
+                photo=main_image,
                 caption=tg_caption,
                 parse_mode="HTML"
             )
@@ -288,7 +341,6 @@ async def process_and_publish(buy_url):
         logging.error(f"⚠️ Telegram Error: {e}")
 
     # 5. Make.com Webhook & Social Caption
-    # --- SOCIAL CAPTION GENERATOR ---
     social_prompt = f"""
     Write an attractive social media caption for Facebook, Pinterest, and Instagram for this product:
     Title: {short_name}
@@ -306,13 +358,9 @@ async def process_and_publish(buy_url):
 
     # --- MAKE.COM WEBHOOK PAYLOAD ---
     try:
-        final_image_url = product.get("image")
-        if not final_image_url or not final_image_url.startswith("http"):
-            final_image_url = DEFAULT_FALLBACK_IMAGE
-
         payload = {
             "title": short_name,
-            "image_url": final_image_url,
+            "image_url": main_image,            # Exactly 1 Main Image for Social Media
             "caption": social_caption,          # Exact caption string
             "message": social_caption,          # FB Text Field Format
             "social_caption": social_caption,   # Alternative Mapping Key
