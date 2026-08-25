@@ -22,27 +22,22 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
     body { background-color: var(--bg-main); color: var(--text-dark); line-height: 1.6; }
 
-    /* Header & Navigation */
     header { background: var(--nav-bg); color: white; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
     .nav-container { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; }
     .logo { font-size: 24px; font-weight: 800; color: #fff; text-decoration: none; letter-spacing: -0.5px; }
     .logo span { color: var(--accent-blue); }
 
-    /* Scrollable Sub-Header Navigation Bars */
     .sub-nav { background: var(--nav-sub-bg); border-top: 1px solid rgba(255,255,255,0.08); overflow-x: auto; white-space: nowrap; scrollbar-width: none; }
     .sub-nav::-webkit-scrollbar { display: none; }
     .sub-nav-container { max-width: 1200px; margin: 0 auto; display: flex; gap: 18px; padding: 10px 20px; }
     .sub-nav-container a { color: #CBD5E1; text-decoration: none; font-size: 13px; font-weight: 500; transition: color 0.2s; }
     .sub-nav-container a:hover { color: #38BDF8; }
 
-    /* Container */
     .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
 
-    /* Section Styling */
     .section-title { font-size: 22px; font-weight: 700; margin: 35px 0 20px; display: flex; align-items: center; gap: 10px; color: var(--text-dark); border-bottom: 2px solid var(--border-color); padding-bottom: 10px; }
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
 
-    /* Premium Product Cards */
     .card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; transition: transform 0.2s, box-shadow 0.2s; }
     .card:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.06); }
     .card-img-wrapper { background: #F1F5F9; padding: 20px; height: 220px; display: flex; align-items: center; justify-content: center; }
@@ -60,7 +55,6 @@
     .btn-buy { background: var(--accent-blue); color: white; }
     .btn-buy:hover { background: #1D4ED8; }
 
-    /* Footer */
     footer { background: var(--nav-bg); color: #94A3B8; text-align: center; padding: 40px 20px; margin-top: 60px; font-size: 14px; }
     footer a { color: #CBD5E1; text-decoration: none; margin: 0 10px; }
     </style>
@@ -91,7 +85,6 @@
     
     </header>
 
-    <!-- Hero Section -->
     <section style="background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%); color: white; padding: 60px 20px; text-align: center;">
         <div style="max-width: 800px; margin: 0 auto;">
             <h1 style="font-size: 40px; font-weight: 800; margin-bottom: 16px; letter-spacing: -1px;">FIND THE BEST TECH BEFORE YOU BUY</h1>
@@ -103,10 +96,24 @@
     </section>
 
     <main class="container">
-        <!-- 🔥 Trending Tech -->
         <h2 class="section-title" id="trending">🔥 Trending Tech</h2>
         <div class="grid">
             
+            <div class="card">
+                <div class="card-img-wrapper">
+                    <img src="https://rukminim2.flixcart.com/image/832/832/xif0q/television/9/w/y/-original-imahzcargrxhyecp.jpeg" alt="Samsung Vision AI 108 cm">
+                </div>
+                <div class="card-content">
+                    <span class="badge">Mobiles</span>
+                    <a href="products/samsung-vision-ai-108-cm/" class="card-title">Samsung Vision AI 108 cm</a>
+                    <div class="rating">★ 4.2 out of 5 stars</div>
+                    <div class="price">Check Best Price</div>
+                    <div class="card-buttons">
+                        <a href="products/samsung-vision-ai-108-cm/" class="btn btn-review">Full Review</a>
+                        <a href="https://fktr.in/idpy3F1" target="_blank" class="btn btn-buy">Best Price</a>
+                    </div>
+                </div>
+            </div>
             <div class="card">
                 <div class="card-img-wrapper">
                     <img src="https://rukminim2.flixcart.com/image/832/832/xif0q/television/h/4/a/-original-imahpx29axejerah.jpeg" alt="LG 108 cm">
@@ -152,25 +159,24 @@
                     </div>
                 </div>
             </div>
+        </div>
+
+        <h2 class="section-title" id="mobiles">📱 Latest Smartphones</h2><div class="grid">
             <div class="card">
                 <div class="card-img-wrapper">
-                    <img src="https://rukminim2.flixcart.com/image/832/832/xif0q/television/k/c/l/-original-imahjph4jjbrbksp.jpeg" alt="XIAOMI F Pro 138 cm">
+                    <img src="https://rukminim2.flixcart.com/image/832/832/xif0q/television/9/w/y/-original-imahzcargrxhyecp.jpeg" alt="Samsung Vision AI 108 cm">
                 </div>
                 <div class="card-content">
-                    <span class="badge">Gadgets</span>
-                    <a href="products/xiaomi-f-pro-138-cm/" class="card-title">XIAOMI F Pro 138 cm</a>
+                    <span class="badge">Mobiles</span>
+                    <a href="products/samsung-vision-ai-108-cm/" class="card-title">Samsung Vision AI 108 cm</a>
                     <div class="rating">★ 4.2 out of 5 stars</div>
                     <div class="price">Check Best Price</div>
                     <div class="card-buttons">
-                        <a href="products/xiaomi-f-pro-138-cm/" class="btn btn-review">Full Review</a>
-                        <a href="https://fktr.in/U2KZ58F" target="_blank" class="btn btn-buy">Best Price</a>
+                        <a href="products/samsung-vision-ai-108-cm/" class="btn btn-review">Full Review</a>
+                        <a href="https://fktr.in/idpy3F1" target="_blank" class="btn btn-buy">Best Price</a>
                     </div>
                 </div>
             </div>
-        </div>
-
-        <!-- 📱 Latest Smartphones -->
-        <h2 class="section-title" id="mobiles">📱 Latest Smartphones</h2><div class="grid">
             <div class="card">
                 <div class="card-img-wrapper">
                     <img src="https://rukminim2.flixcart.com/image/832/832/xif0q/television/k/x/6/-original-imahj8ydnwrzh4hd.jpeg" alt="Samsung 108 cm">
@@ -321,8 +327,6 @@
                     </div>
                 </div>
             </div></div>
-
-        <!-- 💻 Laptops & Computers -->
         <h2 class="section-title" id="laptops">💻 Laptops & Computers</h2><div class="grid">
             <div class="card">
                 <div class="card-img-wrapper">
@@ -339,11 +343,7 @@
                     </div>
                 </div>
             </div></div>
-
-        <!-- 🎧 Headphones & Audio -->
         
-
-        <!-- ⚙️ Gadgets & Other Tech -->
         <h2 class="section-title" id="gadgets">⚙️ Other Electronics & Gadgets</h2><div class="grid">
             <div class="card">
                 <div class="card-img-wrapper">

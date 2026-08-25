@@ -12,7 +12,6 @@ def build_site():
     with open(PRODUCTS_JSON_PATH, "r", encoding="utf-8") as f:
         products = json.load(f)
 
-    # CSS for modern TechRadar / Tom's Guide layout
     COMMON_CSS = """
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
     
@@ -31,27 +30,22 @@ def build_site():
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
     body { background-color: var(--bg-main); color: var(--text-dark); line-height: 1.6; }
 
-    /* Header & Navigation */
     header { background: var(--nav-bg); color: white; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
     .nav-container { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; }
     .logo { font-size: 24px; font-weight: 800; color: #fff; text-decoration: none; letter-spacing: -0.5px; }
     .logo span { color: var(--accent-blue); }
 
-    /* Scrollable Sub-Header Navigation Bars */
     .sub-nav { background: var(--nav-sub-bg); border-top: 1px solid rgba(255,255,255,0.08); overflow-x: auto; white-space: nowrap; scrollbar-width: none; }
     .sub-nav::-webkit-scrollbar { display: none; }
     .sub-nav-container { max-width: 1200px; margin: 0 auto; display: flex; gap: 18px; padding: 10px 20px; }
     .sub-nav-container a { color: #CBD5E1; text-decoration: none; font-size: 13px; font-weight: 500; transition: color 0.2s; }
     .sub-nav-container a:hover { color: #38BDF8; }
 
-    /* Container */
     .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
 
-    /* Section Styling */
     .section-title { font-size: 22px; font-weight: 700; margin: 35px 0 20px; display: flex; align-items: center; gap: 10px; color: var(--text-dark); border-bottom: 2px solid var(--border-color); padding-bottom: 10px; }
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
 
-    /* Premium Product Cards */
     .card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; transition: transform 0.2s, box-shadow 0.2s; }
     .card:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.06); }
     .card-img-wrapper { background: #F1F5F9; padding: 20px; height: 220px; display: flex; align-items: center; justify-content: center; }
@@ -69,7 +63,6 @@ def build_site():
     .btn-buy { background: var(--accent-blue); color: white; }
     .btn-buy:hover { background: #1D4ED8; }
 
-    /* Footer */
     footer { background: var(--nav-bg); color: #94A3B8; text-align: center; padding: 40px 20px; margin-top: 60px; font-size: 14px; }
     footer a { color: #CBD5E1; text-decoration: none; margin: 0 10px; }
     """
@@ -96,7 +89,6 @@ def build_site():
 
     NAV_MENU_HOME_HTML = NAV_MENU_HTML.replace("../../index.html", "index.html")
 
-    # 1. Generate Product Detail Pages
     for product in products:
         product_slug = product["id"]
         prod_dir = os.path.join("products", product_slug)
@@ -114,7 +106,31 @@ def build_site():
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{product['title']} - BG Tech Review</title>
+    <title>{product['title']} - Specs, Price & Detailed Review</title>
+    <meta name="description" content="{product['short_name']} review in Hinglish. Check specifications, price ({product['price']}), pros, cons, and buying guide.">
+    <meta name="keywords" content="{product['short_name']}, {product['short_name']} price, {product['short_name']} review, buy {product['short_name']}">
+    
+    <meta property="og:title" content="{product['title']}">
+    <meta property="og:description" content="Read full review and specs of {product['short_name']}">
+    <meta property="og:image" content="{product['image']}">
+    <meta property="og:type" content="article">
+    
+    <script type="application/ld+json">
+    {{
+      "@context": "https://schema.org/",
+      "@type": "Product",
+      "name": "{product['short_name']}",
+      "image": ["{product['image']}"],
+      "description": "{product['short_name']} detailed review and features.",
+      "offers": {{
+        "@type": "Offer",
+        "priceCurrency": "INR",
+        "price": "{product['price'].replace('₹','').replace(',','')}",
+        "availability": "https://schema.org/InStock",
+        "url": "{product['buy_url']}"
+      }}
+    }}
+    </script>
     <style>{COMMON_CSS}</style>
 </head>
 <body>
@@ -152,8 +168,8 @@ def build_site():
             <table style="width: 100%; border-collapse: collapse;">{specs_html}</table>
         </div>
 
-        <div style="background: white; border: 1px solid var(--border-color); border-radius: 12px; padding: 25px; line-height: 1.8;">
-            <h3 style="margin-bottom: 15px; font-size: 20px;">Expert Verdict & Review</h3>
+        <div style="background: white; border: 1px solid var(--border-color); border-radius: 12px; padding: 30px; line-height: 1.8; font-size: 16px; color: #334155;">
+            <h2 style="margin-bottom: 20px; font-size: 24px; color: #0F172A; border-bottom: 2px solid #E2E8F0; padding-bottom: 8px;">Detailed Review & Expert Analysis</h2>
             {product.get('review_html', '')}
         </div>
     </main>
@@ -168,7 +184,6 @@ def build_site():
         with open(os.path.join(prod_dir, "index.html"), "w", encoding="utf-8") as f:
             f.write(prod_html_content)
 
-    # Helper function to generate cards
     def generate_cards(items):
         html = ""
         for p in items:
@@ -190,13 +205,11 @@ def build_site():
             </div>"""
         return html
 
-    # Category Filters
     mobiles = [p for p in products if p.get('category') == 'Mobiles']
     laptops = [p for p in products if p.get('category') == 'Laptops']
     headphones = [p for p in products if p.get('category') in ['Headphones', 'Audio']]
     gadgets = [p for p in products if p.get('category') not in ['Mobiles', 'Laptops', 'Headphones', 'Audio']]
 
-    # 2. Generate Editorial Homepage (index.html)
     index_html_content = f"""<!DOCTYPE html>
 <html lang="hi">
 <head>
@@ -213,7 +226,6 @@ def build_site():
         {NAV_MENU_HOME_HTML}
     </header>
 
-    <!-- Hero Section -->
     <section style="background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%); color: white; padding: 60px 20px; text-align: center;">
         <div style="max-width: 800px; margin: 0 auto;">
             <h1 style="font-size: 40px; font-weight: 800; margin-bottom: 16px; letter-spacing: -1px;">FIND THE BEST TECH BEFORE YOU BUY</h1>
@@ -225,22 +237,14 @@ def build_site():
     </section>
 
     <main class="container">
-        <!-- 🔥 Trending Tech -->
         <h2 class="section-title" id="trending">🔥 Trending Tech</h2>
         <div class="grid">
             {generate_cards(products[:4])}
         </div>
 
-        <!-- 📱 Latest Smartphones -->
         {f'<h2 class="section-title" id="mobiles">📱 Latest Smartphones</h2><div class="grid">{generate_cards(mobiles)}</div>' if mobiles else ''}
-
-        <!-- 💻 Laptops & Computers -->
         {f'<h2 class="section-title" id="laptops">💻 Laptops & Computers</h2><div class="grid">{generate_cards(laptops)}</div>' if laptops else ''}
-
-        <!-- 🎧 Headphones & Audio -->
         {f'<h2 class="section-title" id="headphones">🎧 Headphones & Audio</h2><div class="grid">{generate_cards(headphones)}</div>' if headphones else ''}
-
-        <!-- ⚙️ Gadgets & Other Tech -->
         {f'<h2 class="section-title" id="gadgets">⚙️ Other Electronics & Gadgets</h2><div class="grid">{generate_cards(gadgets)}</div>' if gadgets else ''}
     </main>
 
@@ -254,7 +258,7 @@ def build_site():
     with open(os.path.join(OUTPUT_DIR, "index.html"), "w", encoding="utf-8") as f:
         f.write(index_html_content)
 
-    print("✅ Successfully updated website with full category navigation bar!")
+    print("✅ Successfully updated website layout & SEO Meta tags!")
 
 if __name__ == "__main__":
     build_site()
