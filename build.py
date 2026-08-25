@@ -72,23 +72,16 @@ def build_site():
         <div class="sub-nav-container">
             <a href="../../index.html">Home</a>
             <a href="../../index.html#mobiles">Mobiles</a>
-            <a href="../../index.html#laptops">Laptops</a>
-            <a href="../../index.html#headphones">Headphones</a>
-            <a href="../../index.html#wearables">Smart Wearables</a>
-            <a href="../../index.html#audio">Audio & Sound</a>
-            <a href="../../index.html#printers">Printers</a>
-            <a href="../../index.html#new">New Releases</a>
-            <a href="../../index.html#reviews">Tech Review</a>
-            <a href="../../index.html#electronics">Electronics</a>
-            <a href="../../index.html#bestsellers">Best Sellers</a>
-            <a href="../../index.html#gadgets">Gadgets</a>
-            <a href="../../index.html#deals">Deals</a>
+            <a href="../../index.html#tvs">Smart TV</a>
+            <a href="../../index.html#headphones">Audio & Sound</a>
+            <a href="../../index.html#gadgets">Printers & Gadgets</a>
         </div>
     </div>
     """
 
     NAV_MENU_HOME_HTML = NAV_MENU_HTML.replace("../../index.html", "index.html")
 
+    # Generate Product Detail Pages
     for product in products:
         product_slug = product["id"]
         prod_dir = os.path.join("products", product_slug)
@@ -101,17 +94,19 @@ def build_site():
         for key, val in product.get("specs", {}).items():
             specs_html += f"<tr><td style='padding:12px; border-bottom:1px solid #E2E8F0; font-weight:600; color:#475569;'>{key}</td><td style='padding:12px; border-bottom:1px solid #E2E8F0; color:#0F172A;'>{val}</td></tr>"
 
+        meta_desc = f"Read detailed review of {product['short_name']}. Check specifications, pricing, pros, cons, and performance verdict before buying."
+
         prod_html_content = f"""<!DOCTYPE html>
 <html lang="hi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{product['title']} - Specs, Price & Detailed Review</title>
-    <meta name="description" content="{product['short_name']} review in Hinglish. Check specifications, price ({product['price']}), pros, cons, and buying guide.">
-    <meta name="keywords" content="{product['short_name']}, {product['short_name']} price, {product['short_name']} review, buy {product['short_name']}">
+    <title>{product['title']} - Price, Specs & Detailed Review (2026)</title>
+    <meta name="description" content="{meta_desc}">
+    <meta name="keywords" content="{product['short_name']}, {product['short_name']} price in India, {product['short_name']} specs, buy {product['short_name']}">
     
     <meta property="og:title" content="{product['title']}">
-    <meta property="og:description" content="Read full review and specs of {product['short_name']}">
+    <meta property="og:description" content="{meta_desc}">
     <meta property="og:image" content="{product['image']}">
     <meta property="og:type" content="article">
     
@@ -121,7 +116,7 @@ def build_site():
       "@type": "Product",
       "name": "{product['short_name']}",
       "image": ["{product['image']}"],
-      "description": "{product['short_name']} detailed review and features.",
+      "description": "{meta_desc}",
       "offers": {{
         "@type": "Offer",
         "priceCurrency": "INR",
@@ -205,17 +200,20 @@ def build_site():
             </div>"""
         return html
 
+    # Category Filtering for Homepage Grid
     mobiles = [p for p in products if p.get('category') == 'Mobiles']
-    laptops = [p for p in products if p.get('category') == 'Laptops']
+    tvs = [p for p in products if p.get('category') in ['TV', 'Television', 'Smart TV']]
     headphones = [p for p in products if p.get('category') in ['Headphones', 'Audio']]
-    gadgets = [p for p in products if p.get('category') not in ['Mobiles', 'Laptops', 'Headphones', 'Audio']]
+    gadgets = [p for p in products if p.get('category') not in ['Mobiles', 'TV', 'Television', 'Smart TV', 'Headphones', 'Audio']]
 
+    # Generate Homepage (index.html)
     index_html_content = f"""<!DOCTYPE html>
 <html lang="hi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BG Tech - Expert Tech Reviews & Deals</title>
+    <title>BG Tech - Latest Tech Reviews, Specifications & Buying Guides (2026)</title>
+    <meta name="description" content="Discover unbiased reviews, detailed specifications, pros, cons, and best deals on smartphones, smart TVs, earbuds, and electronics.">
     <style>{COMMON_CSS}</style>
 </head>
 <body>
@@ -243,9 +241,9 @@ def build_site():
         </div>
 
         {f'<h2 class="section-title" id="mobiles">📱 Latest Smartphones</h2><div class="grid">{generate_cards(mobiles)}</div>' if mobiles else ''}
-        {f'<h2 class="section-title" id="laptops">💻 Laptops & Computers</h2><div class="grid">{generate_cards(laptops)}</div>' if laptops else ''}
-        {f'<h2 class="section-title" id="headphones">🎧 Headphones & Audio</h2><div class="grid">{generate_cards(headphones)}</div>' if headphones else ''}
-        {f'<h2 class="section-title" id="gadgets">⚙️ Other Electronics & Gadgets</h2><div class="grid">{generate_cards(gadgets)}</div>' if gadgets else ''}
+        {f'<h2 class="section-title" id="tvs">📺 Smart TVs & Displays</h2><div class="grid">{generate_cards(tvs)}</div>' if tvs else ''}
+        {f'<h2 class="section-title" id="headphones">🎧 Audio & Sound</h2><div class="grid">{generate_cards(headphones)}</div>' if headphones else ''}
+        {f'<h2 class="section-title" id="gadgets">⚙️ Printers & Other Electronics</h2><div class="grid">{generate_cards(gadgets)}</div>' if gadgets else ''}
     </main>
 
     <footer>
