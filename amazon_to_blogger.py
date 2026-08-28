@@ -12,11 +12,22 @@ from g4f.client import Client
 import requests
 from telegram import Bot
 
+import warnings
+warnings.filterwarnings("ignore", category=FutureWarning, module="google.generativeai")
+
 try:
-    import google.generativeai as genai
+    from google import genai as google_genai
+    GENAI_NEW_SDK = True
     GEMINI_SDK_AVAILABLE = True
 except ImportError:
-    GEMINI_SDK_AVAILABLE = False
+    GENAI_NEW_SDK = False
+    try:
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            import google.generativeai as genai
+        GEMINI_SDK_AVAILABLE = True
+    except ImportError:
+        GEMINI_SDK_AVAILABLE = False
 
 load_dotenv()
 
@@ -24,10 +35,6 @@ load_dotenv()
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
 # ================= 1. CONFIGURATION =================
-# SURAKSHA NOTE: Ye sab secrets ab .env file se aate hain, code mein hardcoded
-# nahi hain (kyunki ye repo Public hai — hardcoded token/webhook leak ho jaate).
-# Agar .env missing ho ya key na mile, to empty string milegi aur wo feature
-# gracefully skip ho jayega (error nahi aayega).
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "")
 MAKE_WEBHOOK_URL = os.getenv("MAKE_WEBHOOK_URL", "")
@@ -43,11 +50,12 @@ PRODUCTS_JSON_PATH = os.path.join("data", "products.json")
 client = Client()  # g4f fallback client
 
 if GEMINI_SDK_AVAILABLE and GEMINI_API_KEY:
-    genai.configure(api_key=GEMINI_API_KEY)
+    if not GENAI_NEW_SDK:
+        genai.configure(api_key=GEMINI_API_KEY)
 elif not GEMINI_SDK_AVAILABLE:
-    logging.warning("⚠️ 'google-generativeai' package installed nahi hai. Chalao: pip install google-generativeai")
+    logging.warning("⚠️ Gemini SDK installed nahi hai. Run: pip install google-genai")
 elif not GEMINI_API_KEY:
-    logging.warning("⚠️ GEMINI_API_KEY .env mein nahi mili — Gemini skip hoga, seedha g4f fallback use hoga.")
+    logging.warning("⚠️ GEMINI_API_KEY .env mein nahi mili — Gemini skip hoga, g4f fallback use hoga.")
 
 # ================= 2. ADVANCED SCRAPER =================
 def unshorten_amazon_url(url, session):
@@ -170,36 +178,49 @@ def scrape_product_details(url):
         data["images"] = valid_images
 
         # 3. Price
-        # Flipkart aur Amazon dono ke liye multiple selectors try karo, kyunki class
-        # names frequently change hote rehte hain (especially Flipkart).
         price_selectors = [
             ("span", {"class": "a-price-whole"}),          # Amazon
-            ("div", {"class": "Nx9bqj CxhGGd"}),            # Flipkart (old)
-            ("div", {"class": "Nx9bqj"}),                    # Flipkart (variant)
-            ("div", {"class": "_30jeq3"}),                   # Flipkart (older layout)
-            ("div", {"class": "_30jeq3 _16Jk6d"}),           # Flipkart (older layout variant)
+            ("div", {"class": "Nx9bqj CxhGGd"}),            # Flipkart
+            ("div", {"class": "Nx9bqj"}),                    # Flipkart
+            ("div", {"class": "_30jeq3"}),                   # Flipkart
+            ("div", {"class": "_30jeq3 _16Jk6d"}),           # Flipkart
+            ("div", {"class": "_25bWKC"}),                   # Flipkart variant
+            ("div", {"class": "HLT-1-"}),                    # Flipkart variant
         ]
         price_elem = None
         for tag, attrs in price_selectors:
             price_elem = soup.find(tag, attrs)
             if price_elem:
-                break
+                clean_price = re.sub(r"[^\d]", "", price_elem.get_text())
+                if clean_price and len(clean_price) >= 3:
+                    try:
+                        data["price"] = f"₹{int(clean_price):,}"
+                    except ValueError:
+                        data["price"] = f"₹{clean_price}"
+                    break
 
-        # Fallback: meta tag jisme price hota hai (works on many product pages)
-        if not price_elem:
+        # Fallback 1: meta tag jisme price hota hai
+        if data["price"] == "Check Best Price":
             meta_price = soup.find("meta", {"itemprop": "price"}) or soup.find("meta", {"property": "product:price:amount"})
             if meta_price and meta_price.get("content"):
                 clean_price = re.sub(r"[^\d]", "", meta_price.get("content"))
-                if clean_price:
-                    data["price"] = f"₹{clean_price}"
+                if clean_price and len(clean_price) >= 3:
+                    try:
+                        data["price"] = f"₹{int(clean_price):,}"
+                    except ValueError:
+                        data["price"] = f"₹{clean_price}"
 
-        if price_elem:
-            clean_price = re.sub(r"[^\d]", "", price_elem.get_text())
-            if clean_price:
-                data["price"] = f"₹{clean_price}"
+        # Fallback 2: Regex scanning on page text for ₹ prices (e.g. ₹12,990)
+        if data["price"] == "Check Best Price":
+            price_matches = re.findall(r"₹\s?([0-9]{1,3}(?:,[0-9]{2,3})+|[0-9]{3,6})", res.text)
+            for pm in price_matches:
+                clean_num = re.sub(r"[^\d]", "", pm)
+                if clean_num and 100 <= int(clean_num) <= 1000000:
+                    data["price"] = f"₹{int(clean_num):,}"
+                    break
 
         if data["price"] == "Check Best Price":
-            logging.warning("⚠️ Price scrape fail hui — 'Check Best Price' placeholder use ho raha hai. Isse text/pros mein numeric price ki jagah ye string leak ho sakti hai.")
+            logging.warning("⚠️ Price scrape fail hui — 'Check Best Price' placeholder use ho raha hai.")
 
         # 4. Bullets
         bullet_elems = soup.find(id="feature-bullets")
@@ -236,9 +257,18 @@ def get_ai_response(prompt):
     # 1) Pehle Gemini try karo (zyada reliable, official API)
     if GEMINI_SDK_AVAILABLE and GEMINI_API_KEY:
         try:
-            model = genai.GenerativeModel(GEMINI_MODEL)
-            res = model.generate_content(prompt)
-            text = getattr(res, "text", "") or ""
+            if GENAI_NEW_SDK:
+                client_genai = google_genai.Client(api_key=GEMINI_API_KEY)
+                res = client_genai.models.generate_content(
+                    model=GEMINI_MODEL,
+                    contents=prompt
+                )
+                text = getattr(res, "text", "") or ""
+            else:
+                model = genai.GenerativeModel(GEMINI_MODEL)
+                res = model.generate_content(prompt)
+                text = getattr(res, "text", "") or ""
+
             if text and len(text.strip()) > 20:
                 return text
             logging.warning("⚠️ Gemini se khaali/chhota response mila, g4f fallback try kar rahe hain.")
@@ -560,8 +590,14 @@ async def process_and_publish(buy_url):
             "amazon_url": buy_url,
             "price": product["price"]
         }
-        response = requests.post(MAKE_WEBHOOK_URL, json=payload, timeout=10)
-        logging.info(f"🎉 Make.com Webhook Triggered! Status: {response.status_code}")
+        if MAKE_WEBHOOK_URL:
+            response = requests.post(MAKE_WEBHOOK_URL, json=payload, timeout=10)
+            if response.status_code == 200:
+                logging.info(f"🎉 Make.com Webhook Triggered! Status: {response.status_code}")
+            else:
+                logging.warning(f"⚠️ Make.com Webhook returned status code {response.status_code} (Please check MAKE_WEBHOOK_URL in .env)")
+        else:
+            logging.info("ℹ️ MAKE_WEBHOOK_URL .env mein missing hai — Webhook skip ho gaya.")
     except Exception as e:
         logging.error(f"⚠️ Webhook Error: {e}")
 
