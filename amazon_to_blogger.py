@@ -98,6 +98,42 @@ def unshorten_amazon_url(url, session):
 
     return url
 
+def clean_product_name(raw_title):
+    """
+    Raw scraped title se saaf, SEO-friendly short product name banata hai.
+    - "Buy " prefix hataata hai
+    - "Online from Flipkart.com" / "Online at ..." jaisa junk suffix hataata hai
+    - " : Amazon.in : ..." jaisa Amazon suffix hataata hai
+    - Comma/pipe par split karta hai, LEKIN hyphen (-) par split NAHI karta,
+      taaki "HT-S20R" jaise model numbers beech mein na kate
+    - Zaroorat padne par word-boundary par hi lambaai limit karta hai
+    """
+    if not raw_title:
+        return raw_title
+
+    name = raw_title.strip()
+
+    # Amazon-style suffix: " : Amazon.in : Electronics" ya " - Amazon.in"
+    name = re.sub(r"\s*[:\-]\s*Amazon\..*$", "", name, flags=re.IGNORECASE)
+
+    # Flipkart-style suffix: " Online From Flipkart.com", " Online At Best Price..."
+    name = re.sub(r"\s+Online\s+(from|at)\s+.*$", "", name, flags=re.IGNORECASE)
+
+    # Leading "Buy " word hatao
+    name = re.sub(r"^\s*Buy\s+", "", name, flags=re.IGNORECASE)
+
+    # Comma ya pipe ke baad ka extra detail hatao (hyphen ko chhoड़ do - model numbers ke liye)
+    name = re.split(r"[|,]", name)[0].strip()
+
+    # Agar phir bhi bahut lamba hai, word-boundary par trim karo (SEO title length ke liye)
+    max_len = 70
+    if len(name) > max_len:
+        trimmed = name[:max_len].rsplit(" ", 1)[0].strip()
+        name = trimmed if trimmed else name[:max_len].strip()
+
+    return name.strip()
+
+
 def clean_image_url(src):
     if not src:
         return ""
@@ -498,8 +534,7 @@ async def process_and_publish(buy_url):
         logging.error("❌ Product scraping failed.")
         return
 
-    clean_raw_title = re.sub(r"\s*:\s*Amazon\..*$", "", product['title'], flags=re.IGNORECASE)
-    short_name = re.split(r'[,|(-]', clean_raw_title)[0].strip()
+    short_name = clean_product_name(product['title'])
     slug = re.sub(r'[^a-z0-9]+', '-', short_name.lower()).strip('-')
 
     ai_data = generate_product_json_content(short_name, product)
