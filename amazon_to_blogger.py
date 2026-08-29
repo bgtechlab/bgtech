@@ -489,21 +489,6 @@ def generate_product_json_content(short_name, product_data):
         logging.error(f"↳ Raw AI output (debug ke liye): {raw_ai[:500]}")
         return build_generic_fallback(short_name, product_data)
 
-# Updated Section 5 Step 3: Git Auto Pull & Push
-    # 3. AUTO-PUSH TO GITHUB (WITH REBASE PULL)
-    try:
-        logging.info("🚀 Pushing changes to GitHub automatically...")
-        git_executable = r'"C:\Program Files\Git\cmd\git.exe"' if os.path.exists(r"C:\Program Files\Git\cmd\git.exe") else "git"
-        
-        # Pull remote changes first to prevent push rejection
-        subprocess.run(f"{git_executable} pull origin main --rebase", shell=True, check=False)
-        subprocess.run(f"{git_executable} add .", shell=True, check=True)
-        subprocess.run(f'{git_executable} commit -m "Auto-add product: {short_name}"', shell=True, check=True)
-        subprocess.run(f"{git_executable} push origin main", shell=True, check=True)
-        logging.info("✅ GitHub Push Successful!")
-    except Exception as e:
-        logging.error(f"⚠️ Auto Git Push Failed: {e}")
-
 # ================= 4. JSON DATA MANAGER =================
 def save_to_products_json(product_entry):
     os.makedirs("data", exist_ok=True)
@@ -572,13 +557,20 @@ async def process_and_publish(buy_url):
         except Exception as e:
             logging.error(f"⚠️ build.py execution failed: {e}")
 
-    # 3. AUTO-PUSH TO GITHUB
+    # 3. AUTO-PUSH TO GITHUB (WITH REBASE PULL)
     try:
         logging.info("🚀 Pushing changes to GitHub automatically...")
         git_executable = r'"C:\Program Files\Git\cmd\git.exe"' if os.path.exists(r"C:\Program Files\Git\cmd\git.exe") else "git"
-        
+
+        # Pehle add+commit karo (taaki naye files stage/save ho jayein)
         subprocess.run(f"{git_executable} add .", shell=True, check=True)
-        subprocess.run(f'{git_executable} commit -m "Auto-add product: {short_name}"', shell=True, check=True)
+        subprocess.run(f'{git_executable} commit -m "Auto-add product: {short_name}"', shell=True, check=False)
+
+        # Ab remote se latest changes khींch kar rebase karo, taaki push reject na ho
+        pull_result = subprocess.run(f"{git_executable} pull origin main --rebase", shell=True)
+        if pull_result.returncode != 0:
+            logging.warning("⚠️ git pull --rebase mein conflict/issue aaya — manually 'git status' check karein.")
+
         subprocess.run(f"{git_executable} push origin main", shell=True, check=True)
         logging.info("✅ GitHub Push Successful!")
     except Exception as e:
