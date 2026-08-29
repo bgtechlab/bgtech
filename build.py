@@ -1,6 +1,7 @@
 import json
 import os
 import re
+from datetime import date
 
 PRODUCTS_JSON_PATH = os.path.join("data", "products.json")
 OUTPUT_DIR = "."
@@ -505,7 +506,35 @@ def build_site():
     with open(os.path.join(OUTPUT_DIR, "index.html"), "w", encoding="utf-8") as f:
         f.write(index_html_content)
 
+    # ============================================
+    # SITEMAP.XML GENERATION (NEW)
+    # ============================================
+    today = date.today().isoformat()
+
+    sitemap_urls = [
+        {"loc": f"{SITE_BASE_URL}/index.html", "priority": "1.0"},
+    ]
+    for product in products:
+        sitemap_urls.append({
+            "loc": f"{SITE_BASE_URL}/products/{product['id']}/",
+            "priority": "0.8"
+        })
+
+    sitemap_xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
+    sitemap_xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+    for u in sitemap_urls:
+        sitemap_xml += "  <url>\n"
+        sitemap_xml += f"    <loc>{u['loc']}</loc>\n"
+        sitemap_xml += f"    <lastmod>{today}</lastmod>\n"
+        sitemap_xml += f"    <priority>{u['priority']}</priority>\n"
+        sitemap_xml += "  </url>\n"
+    sitemap_xml += "</urlset>"
+
+    with open(os.path.join(OUTPUT_DIR, "sitemap.xml"), "w", encoding="utf-8") as f:
+        f.write(sitemap_xml)
+
+    print(f"[SUCCESS] sitemap.xml generated with {len(sitemap_urls)} URLs!")
     print("[SUCCESS] Updated website layout, 5-image gallery & SEO Meta tags!")
 
 if __name__ == "__main__":
-    build_site()
+    build_site()
