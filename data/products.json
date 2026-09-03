@@ -1,5 +1,34 @@
 [
   {
+    "id": "best-tech-gadget-deal",
+    "title": "Best Tech Gadget Deal Review (2026)",
+    "short_name": "Best Tech Gadget Deal",
+    "category": "Gadgets",
+    "price": "Check Best Price",
+    "rating": "4.2 out of 5 stars",
+    "image": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=1000&auto=format&fit=crop",
+    "images": [],
+    "buy_url": "https://fktr.in/1tn0KGN",
+    "pros": [
+      "Solid build quality for a gadget in this segment",
+      "Reliable day-to-day performance",
+      "Multiple connectivity options",
+      "Sleek and modern design"
+    ],
+    "cons": [
+      "Battery backup average under heavy load",
+      "Stock limited during sale periods"
+    ],
+    "specs": {
+      "Build Quality": "Durable, Premium Build",
+      "Performance": "Reliable Everyday Performance",
+      "Connectivity": "Multiple Connectivity Options",
+      "Warranty": "1 Year Brand Warranty"
+    },
+    "review_html": "<h3>Overview</h3><p>Agar aap iske price range mein ek behtareen gadget dhoondh rahe hain, toh Best Tech Gadget Deal ek strong contender hai. Isme aapko build quality aur performance ka accha balance milta hai.</p><h3>Key Features & Performance</h3><p>Is gadget mein aapko reliable everyday performance milti hai jo daily use ke liye kaafi hai.</p><h3>Final Verdict</h3><p>Value for money ke hisaab se ye gadget apne price range mein ek solid buy hai.</p>",
+    "date": "2026-09-03"
+  },
+  {
     "id": "jbl-flip-6-with-12hr-playtime",
     "title": "JBL Flip 6 with 12Hr Playtime Review (2026)",
     "short_name": "JBL Flip 6 with 12Hr Playtime",
