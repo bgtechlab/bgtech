@@ -2,11 +2,38 @@ import json
 import os
 import re
 from datetime import date
+from collections import OrderedDict
 
 PRODUCTS_JSON_PATH = os.path.join("data", "products.json")
 OUTPUT_DIR = "."
 SITE_BASE_URL = "https://bgtechlab.github.io/bgtech"
 DEFAULT_FALLBACK_IMAGE = "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=1000&auto=format&fit=crop"
+
+# Category display order + nice titles + emojis (jo pehle aayega woh pehle dikhega)
+CATEGORY_CONFIG = OrderedDict([
+    ("Mobiles",        {"title": "📱 Latest Smartphones",      "id": "mobiles"}),
+    ("TV",             {"title": "📺 Smart TVs & Displays",    "id": "tvs"}),
+    ("Smart TV",       {"title": "📺 Smart TVs & Displays",    "id": "tvs"}),
+    ("Television",     {"title": "📺 Smart TVs & Displays",    "id": "tvs"}),
+    ("Audio",          {"title": "🎧 Audio & Sound",           "id": "headphones"}),
+    ("Headphones",     {"title": "🎧 Audio & Sound",           "id": "headphones"}),
+    ("Laptops",        {"title": "💻 Laptops",                 "id": "laptops"}),
+    ("Printers",       {"title": "🖨️ Printers",                "id": "printers"}),
+    ("Gadgets",        {"title": "⚙️ Gadgets & Accessories",   "id": "gadgets"}),
+    # ---- Naye categories (aap products.json mein ye names use karo) ----
+    ("Kitchen",        {"title": "🍳 Kitchen",                 "id": "kitchen"}),
+    ("Home & Kitchen", {"title": "🏠 Home & Kitchen",          "id": "home-kitchen"}),
+    ("Accessories",    {"title": "👜 Accessories",             "id": "accessories"}),
+    ("For Women",      {"title": "👩 For Women",               "id": "for-women"}),
+    ("Women Western",  {"title": "👗 Women Western",           "id": "women-western"}),
+    ("Kurti, Saree & Lehenga", {"title": "🥻 Kurti, Saree & Lehenga", "id": "ethnic-wear"}),
+    ("Lingerie",       {"title": "👙 Lingerie",                "id": "lingerie"}),
+    ("For Men",        {"title": "👨 For Men",                 "id": "for-men"}),
+    ("Men",            {"title": "👨 Men",                     "id": "men"}),
+    ("Travel",         {"title": "✈️ Travel",                  "id": "travel"}),
+    ("Car & Motorbike",{"title": "🚗 Car & Motorbike",         "id": "car-motorbike"}),
+    ("Books",          {"title": "📚 Books",                   "id": "books"}),
+])
 
 def build_site():
     if not os.path.exists(PRODUCTS_JSON_PATH):
@@ -30,30 +57,23 @@ def build_site():
         --card-bg: #FFFFFF;
         --border-color: #E2E8F0;
     }
-
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
     body { background-color: var(--bg-main); color: var(--text-dark); line-height: 1.6; }
-
     header { background: var(--nav-bg); color: white; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
     .nav-container { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; }
     .logo { font-size: 24px; font-weight: 800; color: #fff; text-decoration: none; letter-spacing: -0.5px; }
     .logo span { color: var(--accent-blue); }
-
     .sub-nav { background: var(--nav-sub-bg); border-top: 1px solid rgba(255,255,255,0.08); overflow-x: auto; white-space: nowrap; scrollbar-width: none; }
     .sub-nav::-webkit-scrollbar { display: none; }
     .sub-nav-container { max-width: 1200px; margin: 0 auto; display: flex; gap: 18px; padding: 10px 20px; }
     .sub-nav-container a { color: #CBD5E1; text-decoration: none; font-size: 13px; font-weight: 500; transition: color 0.2s; }
     .sub-nav-container a:hover { color: #38BDF8; }
-
     .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
-
     .breadcrumbs { font-size: 13px; color: var(--text-muted); margin: 20px 0 15px; }
     .breadcrumbs a { color: var(--accent-blue); text-decoration: none; }
     .breadcrumbs a:hover { text-decoration: underline; }
-
     .section-title { font-size: 22px; font-weight: 700; margin: 35px 0 20px; display: flex; align-items: center; gap: 10px; color: var(--text-dark); border-bottom: 2px solid var(--border-color); padding-bottom: 10px; }
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
-
     .card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; transition: transform 0.2s, box-shadow 0.2s; }
     .card:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.06); }
     .card-img-wrapper { background: #FFFFFF; padding: 20px; height: 220px; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid #F1F5F9; }
@@ -70,7 +90,6 @@ def build_site():
     .btn-review:hover { background: #E2E8F0; }
     .btn-buy { background: var(--accent-blue); color: white; }
     .btn-buy:hover { background: #1D4ED8; }
-
     /* 5-IMAGE SIDE GALLERY LAYOUT */
     .product-hero {
         background: white;
@@ -132,7 +151,6 @@ def build_site():
         flex-wrap: wrap;
         gap: 15px;
     }
-
     .affiliate-disclaimer {
         font-size: 12px;
         color: var(--text-muted);
@@ -142,7 +160,6 @@ def build_site():
         border-radius: 6px;
         border-left: 3px solid var(--accent-blue);
     }
-
     @media (max-width: 680px) {
         .gallery-container {
             flex-direction: column-reverse;
@@ -162,26 +179,40 @@ def build_site():
             text-align: center;
         }
     }
-
     footer { background: var(--nav-bg); color: #94A3B8; text-align: center; padding: 40px 20px; margin-top: 60px; font-size: 14px; }
     footer a { color: #CBD5E1; text-decoration: none; margin: 0 10px; }
     """
 
-    NAV_MENU_HTML = """
+    # ========== DYNAMIC NAV MENU ==========
+    # Unique categories jo products mein actually maujood hain
+    used_categories = []
+    seen_ids = set()
+    for p in products:
+        cat = p.get("category", "Gadgets")
+        cfg = CATEGORY_CONFIG.get(cat)
+        if cfg and cfg["id"] not in seen_ids:
+            used_categories.append((cat, cfg))
+            seen_ids.add(cfg["id"])
+        elif not cfg and cat not in seen_ids:
+            # Unknown category → auto add
+            slug = re.sub(r'[^a-z0-9]+', '-', cat.lower()).strip('-')
+            used_categories.append((cat, {"title": cat, "id": slug}))
+            seen_ids.add(slug)
+
+    nav_links = ['<a href="../../index.html">Home</a>']
+    for cat, cfg in used_categories:
+        nav_links.append(f'<a href="../../index.html#{cfg["id"]}">{cat}</a>')
+
+    NAV_MENU_HTML = f"""
     <div class="sub-nav">
         <div class="sub-nav-container">
-            <a href="../../index.html">Home</a>
-            <a href="../../index.html#mobiles">Mobiles</a>
-            <a href="../../index.html#tvs">Smart TV</a>
-            <a href="../../index.html#headphones">Audio & Sound</a>
-            <a href="../../index.html#gadgets">Printers & Gadgets</a>
+            {' '.join(nav_links)}
         </div>
     </div>
     """
-
     NAV_MENU_HOME_HTML = NAV_MENU_HTML.replace("../../index.html", "index.html")
 
-    # Generate Product Detail Pages
+    # ========== PRODUCT DETAIL PAGES ==========
     for product in products:
         product_slug = product["id"]
         prod_dir = os.path.join("products", product_slug)
@@ -189,22 +220,18 @@ def build_site():
 
         page_canonical_url = f"{SITE_BASE_URL}/products/{product_slug}/"
 
-        # 5 Images side layout logic
         raw_images = product.get("images", [])
         if not raw_images:
             raw_images = [product.get("image", DEFAULT_FALLBACK_IMAGE)]
 
-        # Ensure we have exactly 5 images (repeat available ones if fewer than 5)
         gallery_5_images = list(raw_images)
         while len(gallery_5_images) < 5:
             gallery_5_images.append(gallery_5_images[len(gallery_5_images) % len(raw_images)])
         gallery_5_images = gallery_5_images[:5]
 
         main_img_url = gallery_5_images[0]
-
         product_short_name = product.get("short_name", "Product")
 
-        # Generate 5 side thumbnail buttons HTML
         thumbs_html = ""
         for idx, img_url in enumerate(gallery_5_images):
             active_cls = " active" if idx == 0 else ""
@@ -212,21 +239,19 @@ def build_site():
 
         pros_html = "".join([f"<li style='margin-bottom:8px; color:#15803D;'>✓ {p}</li>" for p in product.get("pros", [])])
         cons_html = "".join([f"<li style='margin-bottom:8px; color:#B91C1C;'>✕ {c}</li>" for c in product.get("cons", [])])
-        
+
         specs_html = ""
         for key, val in product.get("specs", {}).items():
             specs_html += f"<tr><td style='padding:12px; border-bottom:1px solid #E2E8F0; font-weight:600; color:#475569;'>{key}</td><td style='padding:12px; border-bottom:1px solid #E2E8F0; color:#0F172A;'>{val}</td></tr>"
 
         meta_desc = f"Read detailed review of {product['short_name']}. Check specs, price in India, pros, cons, and performance rating before buying."
 
-        # Numeric price extraction for Schema.org
         raw_price = product.get('price', '')
         clean_num_price = re.sub(r'[^\d]', '', raw_price)
         schema_price = clean_num_price if clean_num_price else "0"
 
         category_name = product.get('category', 'Gadgets')
 
-        # Related products (up to 3)
         related_items = [p for p in products if p['id'] != product_slug][:3]
         related_html = ""
         for rel in related_items:
@@ -266,7 +291,6 @@ def build_site():
     <meta name="twitter:title" content="{product['title']}">
     <meta name="twitter:description" content="{meta_desc}">
     <meta name="twitter:image" content="{main_img_url}">
-
     <!-- Schema.org JSON-LD (SEO) -->
     <script type="application/ld+json">
     {{
@@ -322,7 +346,6 @@ def build_site():
       ]
     }}
     </script>
-
     <style>{COMMON_CSS}</style>
 </head>
 <body>
@@ -332,29 +355,23 @@ def build_site():
         </div>
         {NAV_MENU_HTML}
     </header>
-
     <main class="container" style="max-width: 960px; margin-top: 10px;">
         <div class="breadcrumbs">
             <a href="../../index.html">Home</a> &rsaquo; <a href="../../index.html">{category_name}</a> &rsaquo; <span>{product['short_name']}</span>
         </div>
-
         <span class="badge">{category_name}</span>
         <h1 style="font-size: 30px; font-weight: 800; margin: 10px 0 6px; color: var(--text-dark);">{product['title']}</h1>
         <div class="rating" style="font-size: 16px; margin-bottom: 20px;">★ {product.get('rating', '4.2 out of 5 stars')} | Verified Expert Review</div>
-
         <!-- 5-IMAGE SIDE GALLERY HERO SECTION -->
         <div class="product-hero">
             <div class="gallery-container">
-                <!-- 5 Side Thumbnails -->
                 <div class="thumbnail-side">
                     {thumbs_html}
                 </div>
-                <!-- Main Large Display Image -->
                 <div class="main-image-box">
                     <img id="mainProductImg" src="{main_img_url}" alt="{product['short_name']}">
                 </div>
             </div>
-
             <div class="buy-action-bar">
                 <div>
                     <div style="font-size: 13px; color: var(--text-muted);">Deal Price</div>
@@ -363,11 +380,9 @@ def build_site():
                 <a href="{product['buy_url']}" target="_blank" rel="nofollow noopener" class="btn btn-buy" style="font-size: 16px; padding: 14px 32px; box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);">🛒 Check Best Price / Buy Now</a>
             </div>
         </div>
-
         <div class="affiliate-disclaimer">
             ℹ️ <strong>Affiliate Disclosure:</strong> When you buy through links on BG Tech, we may earn an affiliate commission at no extra cost to you.
         </div>
-
         <!-- PROS & CONS -->
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;">
             <div style="background:#F0FDF4; border:1px solid #BBF7D0; border-radius:12px; padding:20px;">
@@ -379,31 +394,26 @@ def build_site():
                 <ul style="list-style:none;">{cons_html}</ul>
             </div>
         </div>
-
         <!-- TECH SPECS -->
         <div style="background: white; border: 1px solid var(--border-color); border-radius: 12px; padding: 25px; margin-bottom: 30px;">
             <h3 style="margin-bottom: 15px; font-size: 20px; border-bottom: 2px solid var(--border-color); padding-bottom: 10px;">Technical Specifications</h3>
             <table style="width: 100%; border-collapse: collapse;">{specs_html}</table>
         </div>
-
         <!-- REVIEW HTML -->
         <div style="background: white; border: 1px solid var(--border-color); border-radius: 12px; padding: 30px; line-height: 1.8; font-size: 16px; color: #334155; margin-bottom: 40px;">
             <h2 style="margin-bottom: 20px; font-size: 24px; color: #0F172A; border-bottom: 2px solid #E2E8F0; padding-bottom: 8px;">Detailed Review & Expert Analysis</h2>
             {product.get('review_html', '')}
         </div>
-
         <!-- RELATED PRODUCTS SECTION -->
         <h3 class="section-title">🔥 Related Product Reviews</h3>
         <div class="grid" style="margin-bottom: 40px;">
             {related_html}
         </div>
     </main>
-
     <footer>
         <p><a href="../../index.html">Home</a> • <a href="../../index.html">About</a> • <a href="../../index.html">Privacy</a> • <a href="../../index.html">Disclaimer</a></p>
         <p style="margin-top:10px;">&copy; 2026 BG Tech. All rights reserved.</p>
     </footer>
-
     <script>
     function changeGalleryImage(imgSrc, element) {{
         const mainImg = document.getElementById('mainProductImg');
@@ -413,7 +423,6 @@ def build_site():
             mainImg.src = imgSrc;
             mainImg.style.opacity = '1';
         }}, 120);
-
         document.querySelectorAll('.thumb-btn').forEach(btn => btn.classList.remove('active'));
         if (element) element.classList.add('active');
     }}
@@ -445,24 +454,52 @@ def build_site():
             </div>"""
         return html
 
-    # Category Filtering for Homepage Grid
-    mobiles = [p for p in products if p.get('category') == 'Mobiles']
-    tvs = [p for p in products if p.get('category') in ['TV', 'Television', 'Smart TV']]
-    headphones = [p for p in products if p.get('category') in ['Headphones', 'Audio']]
-    gadgets = [p for p in products if p.get('category') not in ['Mobiles', 'TV', 'Television', 'Smart TV', 'Headphones', 'Audio']]
+    # ========== DYNAMIC HOMEPAGE SECTIONS ==========
+    # Group products by category (using the display id so TV/Smart TV merge)
+    category_groups = OrderedDict()
+    for cat, cfg in CATEGORY_CONFIG.items():
+        section_id = cfg["id"]
+        if section_id not in category_groups:
+            category_groups[section_id] = {
+                "title": cfg["title"],
+                "products": []
+            }
 
-    # Generate Homepage (index.html)
+    for p in products:
+        cat = p.get("category", "Gadgets")
+        cfg = CATEGORY_CONFIG.get(cat)
+        if cfg:
+            section_id = cfg["id"]
+            category_groups[section_id]["products"].append(p)
+        else:
+            # Unknown category → create new section
+            slug = re.sub(r'[^a-z0-9]+', '-', cat.lower()).strip('-')
+            if slug not in category_groups:
+                category_groups[slug] = {"title": cat, "products": []}
+            category_groups[slug]["products"].append(p)
+
+    # Build sections HTML (only those that have products)
+    sections_html = ""
+    for section_id, data in category_groups.items():
+        if data["products"]:
+            sections_html += f'''
+        <h2 class="section-title" id="{section_id}">{data["title"]}</h2>
+        <div class="grid">
+            {generate_cards(data["products"])}
+        </div>'''
+
+    # ========== HOMEPAGE ==========
     index_html_content = f"""<!DOCTYPE html>
 <html lang="hi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BG Tech - Latest Tech Reviews, Specifications & Buying Guides (2026)</title>
-    <meta name="description" content="Discover unbiased reviews, detailed specifications, pros, cons, and best deals on smartphones, smart TVs, soundbars, earbuds, and electronics.">
+    <title>BG Tech - Latest Product Reviews, Specifications & Buying Guides (2026)</title>
+    <meta name="description" content="Discover unbiased reviews, detailed specifications, pros, cons, and best deals on smartphones, smart TVs, kitchen, fashion, travel, books and more.">
     <link rel="canonical" href="{SITE_BASE_URL}/index.html">
     <meta property="og:type" content="website">
-    <meta property="og:title" content="BG Tech - Latest Tech Reviews, Specifications & Buying Guides (2026)">
-    <meta property="og:description" content="Discover unbiased reviews, detailed specifications, pros, cons, and best deals on smartphones, smart TVs, soundbars, earbuds, and electronics.">
+    <meta property="og:title" content="BG Tech - Latest Product Reviews, Specifications & Buying Guides (2026)">
+    <meta property="og:description" content="Discover unbiased reviews, detailed specifications, pros, cons, and best deals on smartphones, smart TVs, kitchen, fashion, travel, books and more.">
     <meta property="og:url" content="{SITE_BASE_URL}/index.html">
     <style>{COMMON_CSS}</style>
 </head>
@@ -473,29 +510,22 @@ def build_site():
         </div>
         {NAV_MENU_HOME_HTML}
     </header>
-
     <section style="background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%); color: white; padding: 60px 20px; text-align: center;">
         <div style="max-width: 800px; margin: 0 auto;">
-            <h1 style="font-size: 40px; font-weight: 800; margin-bottom: 16px; letter-spacing: -1px;">FIND THE BEST TECH BEFORE YOU BUY</h1>
+            <h1 style="font-size: 40px; font-weight: 800; margin-bottom: 16px; letter-spacing: -1px;">FIND THE BEST PRODUCTS BEFORE YOU BUY</h1>
             <p style="font-size: 18px; color: #94A3B8; margin-bottom: 28px;">Expert Reviews • Specifications • Best Online Deals</p>
             <div style="display: flex; gap: 12px; justify-content: center;">
                 <a href="#trending" class="btn btn-buy" style="padding: 12px 24px; font-size: 15px;">Explore Latest Reviews</a>
             </div>
         </div>
     </section>
-
     <main class="container">
-        <h2 class="section-title" id="trending">🔥 Trending Tech Reviews</h2>
+        <h2 class="section-title" id="trending">🔥 Trending Reviews</h2>
         <div class="grid">
             {generate_cards(products[:4])}
         </div>
-
-        {f'<h2 class="section-title" id="mobiles">📱 Latest Smartphones</h2><div class="grid">{generate_cards(mobiles)}</div>' if mobiles else ''}
-        {f'<h2 class="section-title" id="tvs">📺 Smart TVs & Displays</h2><div class="grid">{generate_cards(tvs)}</div>' if tvs else ''}
-        {f'<h2 class="section-title" id="headphones">🎧 Audio & Sound</h2><div class="grid">{generate_cards(headphones)}</div>' if headphones else ''}
-        {f'<h2 class="section-title" id="gadgets">⚙️ Printers & Other Electronics</h2><div class="grid">{generate_cards(gadgets)}</div>' if gadgets else ''}
+        {sections_html}
     </main>
-
     <footer>
         <p><a href="index.html">Home</a> • <a href="index.html">About</a> • <a href="index.html">Privacy</a> • <a href="index.html">Disclaimer</a></p>
         <p style="margin-top:10px;">&copy; 2026 BG Tech. All rights reserved.</p>
@@ -506,11 +536,8 @@ def build_site():
     with open(os.path.join(OUTPUT_DIR, "index.html"), "w", encoding="utf-8") as f:
         f.write(index_html_content)
 
-    # ============================================
-    # SITEMAP.XML GENERATION (NEW)
-    # ============================================
+    # ========== SITEMAP ==========
     today = date.today().isoformat()
-
     sitemap_urls = [
         {"loc": f"{SITE_BASE_URL}/index.html", "priority": "1.0"},
     ]
@@ -534,7 +561,7 @@ def build_site():
         f.write(sitemap_xml)
 
     print(f"[SUCCESS] sitemap.xml generated with {len(sitemap_urls)} URLs!")
-    print("[SUCCESS] Updated website layout, 5-image gallery & SEO Meta tags!")
+    print("[SUCCESS] Multi-category support ready! Navigation + homepage sections ab dynamic hain.")
 
 if __name__ == "__main__":
     build_site()
