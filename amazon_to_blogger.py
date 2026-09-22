@@ -286,6 +286,33 @@ def scrape_product_details(url):
     elif any(w in title_lower for w in ["printer"]):
         data["category"] = "Printers"
 
+    # ---- Naye categories (build.py ke CATEGORY_CONFIG se match) ----
+    # NOTE: order zaroori hai — zyada specific keywords upar, generic neeche.
+    elif any(w in title_lower for w in ["kurti", "saree", "sari", "lehenga", "salwar", "dupatta", "chaniya"]):
+        data["category"] = "Kurti, Saree & Lehenga"
+    elif any(w in title_lower for w in ["bra", "lingerie", "panty", "panties", "nightwear", "camisole", "shapewear"]):
+        data["category"] = "Lingerie"
+    elif any(w in title_lower for w in ["women western", "women's dress", "women's top", "women's jeans", "crop top", "women's jumpsuit"]):
+        data["category"] = "Women Western"
+    elif any(w in title_lower for w in ["for women", "women's", "womens ", "ladies"]):
+        data["category"] = "For Women"
+    elif any(w in title_lower for w in ["for men", "men's", "mens "]):
+        data["category"] = "For Men"
+    elif re.search(r"\bmen\b", title_lower) or "man's" in title_lower:
+        data["category"] = "Men"
+    elif any(w in title_lower for w in ["cookware", "kadai", "tawa", "pressure cooker", "mixer grinder", "induction cooktop", "kitchen set", "non stick", "gas stove"]):
+        data["category"] = "Kitchen"
+    elif any(w in title_lower for w in ["home decor", "furniture", "storage rack", "curtain", "bedsheet", "home & kitchen", "wall clock"]):
+        data["category"] = "Home & Kitchen"
+    elif any(w in title_lower for w in ["trolley bag", "suitcase", "travel backpack", "duffel bag", "luggage"]):
+        data["category"] = "Travel"
+    elif any(w in title_lower for w in ["car accessories", "car cover", "bike cover", "helmet", "motorbike", "car vacuum", "car charger"]):
+        data["category"] = "Car & Motorbike"
+    elif any(w in title_lower for w in ["book", "novel", "guide book", "paperback", "hardcover"]):
+        data["category"] = "Books"
+    elif any(w in title_lower for w in ["wallet", "belt", "sunglasses", "watch strap", "handbag"]):
+        data["category"] = "Accessories"
+
     return data
 
 # ================= 3. AI CONTENT GENERATOR =================
@@ -400,6 +427,114 @@ CATEGORY_FALLBACKS = {
             "Warranty": "1 Year Brand Warranty",
         },
         "noun": "gadget",
+    },
+    "Kitchen": {
+        "specs": {
+            "Build Material": "Food-Grade, Durable Material",
+            "Capacity": "Family-Sized Capacity",
+            "Ease of Use": "Easy to Clean & Maintain",
+            "Warranty": "1 Year Brand Warranty",
+        },
+        "noun": "kitchen appliance",
+    },
+    "Home & Kitchen": {
+        "specs": {
+            "Build Quality": "Sturdy, Long-Lasting Material",
+            "Design": "Space-Saving, Modern Design",
+            "Maintenance": "Easy to Clean & Maintain",
+            "Warranty": "1 Year Brand Warranty",
+        },
+        "noun": "home essential",
+    },
+    "Accessories": {
+        "specs": {
+            "Material": "Durable, Premium Quality Material",
+            "Design": "Compact & Stylish Design",
+            "Compatibility": "Universal Fit / Wide Compatibility",
+            "Warranty": "Brand Warranty (as applicable)",
+        },
+        "noun": "accessory",
+    },
+    "For Women": {
+        "specs": {
+            "Material": "Comfortable, Skin-Friendly Fabric",
+            "Fit": "Regular Fit with Everyday Comfort",
+            "Care": "Easy Machine Wash",
+            "Available Sizes": "Multiple Sizes Available",
+        },
+        "noun": "product",
+    },
+    "Women Western": {
+        "specs": {
+            "Fabric": "Soft, Breathable Fabric",
+            "Fit & Style": "Trendy Western Fit",
+            "Care": "Easy Machine Wash",
+            "Available Sizes": "Multiple Sizes Available",
+        },
+        "noun": "western wear piece",
+    },
+    "Kurti, Saree & Lehenga": {
+        "specs": {
+            "Fabric": "Premium Ethnic Fabric",
+            "Work/Design": "Elegant Traditional Design",
+            "Care": "Gentle/Dry Wash Recommended",
+            "Available Sizes": "Multiple Sizes Available",
+        },
+        "noun": "ethnic wear piece",
+    },
+    "Lingerie": {
+        "specs": {
+            "Fabric": "Soft, Skin-Friendly Fabric",
+            "Comfort": "All-Day Comfort Fit",
+            "Care": "Easy Hand/Machine Wash",
+            "Available Sizes": "Multiple Sizes Available",
+        },
+        "noun": "product",
+    },
+    "For Men": {
+        "specs": {
+            "Material": "Durable, Comfortable Fabric",
+            "Fit": "Regular Fit with Everyday Comfort",
+            "Care": "Easy Machine Wash",
+            "Available Sizes": "Multiple Sizes Available",
+        },
+        "noun": "product",
+    },
+    "Men": {
+        "specs": {
+            "Material": "Durable, Comfortable Fabric",
+            "Fit": "Regular Fit with Everyday Comfort",
+            "Care": "Easy Machine Wash",
+            "Available Sizes": "Multiple Sizes Available",
+        },
+        "noun": "product",
+    },
+    "Travel": {
+        "specs": {
+            "Build Material": "Durable, Impact-Resistant Material",
+            "Capacity": "Spacious Storage Capacity",
+            "Mobility": "Smooth-Rolling Wheels / Comfortable Straps",
+            "Warranty": "1 Year Brand Warranty",
+        },
+        "noun": "travel gear",
+    },
+    "Car & Motorbike": {
+        "specs": {
+            "Build Material": "Weather-Resistant, Durable Material",
+            "Fit/Compatibility": "Universal Fit for Most Models",
+            "Installation": "Easy to Install & Use",
+            "Warranty": "Brand Warranty (as applicable)",
+        },
+        "noun": "car/bike accessory",
+    },
+    "Books": {
+        "specs": {
+            "Format": "Paperback / Hardcover",
+            "Language": "English/Hindi (as listed)",
+            "Content": "Well-Structured, Engaging Content",
+            "Pages": "As Listed by Publisher",
+        },
+        "noun": "book",
     },
 }
 
