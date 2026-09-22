@@ -159,9 +159,11 @@ def scrape_product_details(url):
     })
 
     res_url = unshorten_amazon_url(url, session)
+    logging.info(f"➡️ Resolved URL: {res_url}")
 
     try:
         res = session.get(res_url, allow_redirects=True, timeout=20)
+        logging.info(f"📡 Status Code: {res.status_code} | Response length: {len(res.text)} chars")
         soup = BeautifulSoup(res.content, "html.parser")
 
         # 1. Title
