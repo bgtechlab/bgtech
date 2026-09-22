@@ -155,8 +155,26 @@ def scrape_product_details(url):
     session = requests.Session()
     session.headers.update({
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
-        "Accept-Language": "en-US,en;q=0.9,hi;q=0.8"
+        "Accept-Language": "en-US,en;q=0.9,hi;q=0.8",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+        "Accept-Encoding": "gzip, deflate, br",
+        "Connection": "keep-alive",
+        "Upgrade-Insecure-Requests": "1",
+        "Referer": "https://www.google.com/",
+        "Sec-Fetch-Dest": "document",
+        "Sec-Fetch-Mode": "navigate",
+        "Sec-Fetch-Site": "cross-site",
+        "Sec-Fetch-User": "?1",
+        "sec-ch-ua": '"Chromium";v="126", "Google Chrome";v="126", "Not.A/Brand";v="24"',
+        "sec-ch-ua-mobile": "?0",
+        "sec-ch-ua-platform": '"Windows"',
     })
+    # Flipkart/Amazon dono homepage ko pehle ek baar visit karke session cookies le lo —
+    # isse "cold" bot-jaisi request ki jagah real-browsing-jaisi cookie history milti hai
+    try:
+        session.get("https://www.flipkart.com/", timeout=10)
+    except Exception:
+        pass
 
     res_url = unshorten_amazon_url(url, session)
     logging.info(f"➡️ Resolved URL: {res_url}")
