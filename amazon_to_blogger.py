@@ -1,4 +1,5 @@
 import asyncio
+from collections import OrderedDict
 from datetime import datetime, timezone
 import json
 import logging
@@ -6,13 +7,13 @@ import os
 import re
 import subprocess
 import time
+import warnings
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 from g4f.client import Client
 import requests
 from telegram import Bot
 
-import warnings
 warnings.filterwarnings("ignore", category=FutureWarning, module="google.generativeai")
 
 try:
@@ -34,7 +35,7 @@ load_dotenv()
 # Logging Setup
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
-# ================= 1. CONFIGURATION =================
+# ================= 1. CONFIGURATION & CATEGORIES =================
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "")
 MAKE_WEBHOOK_URL = os.getenv("MAKE_WEBHOOK_URL", "")
@@ -47,6 +48,33 @@ DEFAULT_FALLBACK_IMAGE = "https://images.unsplash.com/photo-1505740420928-5e560c
 
 PRODUCTS_JSON_PATH = os.path.join("data", "products.json")
 
+# Category Configuration Dictionary
+CATEGORY_CONFIG = OrderedDict([
+    ("Mobiles",                {"title": "📱 Latest Smartphones",      "id": "mobiles"}),
+    ("TV",                     {"title": "📺 Smart TVs & Displays",    "id": "tvs"}),
+    ("Smart TV",               {"title": "📺 Smart TVs & Displays",    "id": "tvs"}),
+    ("Audio",                  {"title": "🎧 Audio & Sound",           "id": "headphones"}),
+    ("Headphones",             {"title": "🎧 Audio & Sound",           "id": "headphones"}),
+    ("Laptops",                {"title": "💻 Laptops",                 "id": "laptops"}),
+    ("Printers",               {"title": "🖨️ Printers",                "id": "printers"}),
+    ("Smartwatches",           {"title": "⌚ Smartwatches",            "id": "smartwatches"}),
+    ("Gadgets",                {"title": "⚙️ Gadgets & Accessories",   "id": "gadgets"}),
+    
+    # ---- Naye Categories ----
+    ("Kitchen",                {"title": "🍳 Kitchen",                 "id": "kitchen"}),
+    ("Home & Kitchen",         {"title": "🏠 Home & Kitchen",          "id": "home-kitchen"}),
+    ("Accessories",            {"title": "👜 Accessories",             "id": "accessories"}),
+    ("For Women",              {"title": "👩 For Women",               "id": "for-women"}),
+    ("Women Western",          {"title": "👗 Women Western",           "id": "women-western"}),
+    ("Kurti, Saree & Lehenga", {"title": "🥻 Kurti, Saree & Lehenga",  "id": "ethnic-wear"}),
+    ("Lingerie",               {"title": "👙 Lingerie",                "id": "lingerie"}),
+    ("For Men",                {"title": "👨 For Men",                 "id": "for-men"}),
+    ("Men",                    {"title": "👨 Men",                     "id": "men"}),
+    ("Travel",                 {"title": "✈️ Travel",                  "id": "travel"}),
+    ("Car & Motorbike",        {"title": "🚗 Car & Motorbike",         "id": "car-motorbike"}),
+    ("Books",                  {"title": "📚 Books",                   "id": "books"}),
+])
+
 client = Client()  # g4f fallback client
 
 if GEMINI_SDK_AVAILABLE and GEMINI_API_KEY:
@@ -57,7 +85,7 @@ elif not GEMINI_SDK_AVAILABLE:
 elif not GEMINI_API_KEY:
     logging.warning("⚠️ GEMINI_API_KEY .env mein nahi mili — Gemini skip hoga, g4f fallback use hoga.")
 
-# ================= 2. ADVANCED SCRAPER =================
+# ================= 2. ADVANCED SCRAPER & HELPERS =================
 def unshorten_amazon_url(url, session):
     if not any(domain in url for domain in ["amzn.to", "link.amazon", "earnkaro", "fktr.in", "linkredirect.in"]):
         return url
@@ -99,15 +127,6 @@ def unshorten_amazon_url(url, session):
     return url
 
 def clean_product_name(raw_title):
-    """
-    Raw scraped title se saaf, SEO-friendly short product name banata hai.
-    - "Buy " prefix hataata hai
-    - "Online from Flipkart.com" / "Online at ..." jaisa junk suffix hataata hai
-    - " : Amazon.in : ..." jaisa Amazon suffix hataata hai
-    - Comma/pipe par split karta hai, LEKIN hyphen (-) par split NAHI karta,
-      taaki "HT-S20R" jaise model numbers beech mein na kate
-    - Zaroorat padne par word-boundary par hi lambaai limit karta hai
-    """
     if not raw_title:
         return raw_title
 
@@ -122,10 +141,10 @@ def clean_product_name(raw_title):
     # Leading "Buy " word hatao
     name = re.sub(r"^\s*Buy\s+", "", name, flags=re.IGNORECASE)
 
-    # Comma ya pipe ke baad ka extra detail hatao (hyphen ko chhoड़ do - model numbers ke liye)
+    # Comma ya pipe ke baad ka extra detail hatao
     name = re.split(r"[|,]", name)[0].strip()
 
-    # Agar phir bhi bahut lamba hai, word-boundary par trim karo (SEO title length ke liye)
+    # Word-boundary par trim karo SEO title ke liye
     max_len = 70
     if len(name) > max_len:
         trimmed = name[:max_len].rsplit(" ", 1)[0].strip()
@@ -133,13 +152,72 @@ def clean_product_name(raw_title):
 
     return name.strip()
 
-
 def clean_image_url(src):
     if not src:
         return ""
     clean_src = re.sub(r"\._SX\d+_|\._SY\d+_|\._AC_UL\d+_|\._UX\d+_|\._.*_.", ".", src)
     clean_src = re.sub(r"/image/\d+/\d+/", "/image/832/832/", clean_src)
     return clean_src
+
+def detect_product_category(title_text):
+    """Title aur keywords ke hisaab se sahi category detect karta hai."""
+    t = title_text.lower()
+
+    # Tech & Electronics
+    if any(w in t for w in ["laptop", "macbook", "notebook", "thinkpad"]):
+        return "Laptops"
+    elif any(w in t for w in ["phone", "mobile", "5g", "smartphone", "iphone", "samsung galaxy", "redmi", "realme", "oneplus"]):
+        return "Mobiles"
+    elif any(w in t for w in ["smartwatch", "smart watch", "fitness band", "smart band"]):
+        return "Smartwatches"
+    elif any(w in t for w in ["earbuds", "headphone", "earphone", "airpods", "tws", "neckband", "headset"]):
+        return "Headphones"
+    elif any(w in t for w in ["soundbar", "speaker", "bluetooth speaker", "home theatre", "subwoofer", "audio"]):
+        return "Audio"
+    elif any(w in t for w in [" tv", "television", "smart tv", "led tv", "qled", "oled", "android tv"]):
+        return "TV"
+    elif any(w in t for w in ["printer", "ink cartridge", "toner"]):
+        return "Printers"
+
+    # Books
+    elif any(w in t for w in ["paperback", "hardcover", "novel", "book", "edition", "author", "guidebook"]):
+        return "Books"
+
+    # Women Fashion & Ethnic Wear
+    elif any(w in t for w in ["saree", "kurti", "kurta set", "lehenga", "anarkali", "dupatta", "ethnic"]):
+        return "Kurti, Saree & Lehenga"
+    elif any(w in t for w in ["bra ", "panty", "lingerie", "nightwear", "nightdress", "sleepwear", "bikini"]):
+        return "Lingerie"
+    elif any(w in t for w in ["dress", "gown", "top for women", "jeans for women", "skirt", "jumpsuit"]):
+        return "Women Western"
+    elif any(w in t for w in ["women", "ladies", "girl"]):
+        return "For Women"
+
+    # Men Fashion
+    elif any(w in t for w in ["men t-shirt", "men shirt", "men jeans", "men trousers", "men blazer", "kurta for men"]):
+        return "For Men"
+    elif any(w in t for w in [" men", "man", "gents"]):
+        return "Men"
+
+    # Kitchen & Home
+    elif any(w in t for w in ["mixer grinder", "blender", "cooker", "frypan", "kettle", "gas stove", "chimney", "toaster", "air fryer", "cookware"]):
+        return "Kitchen"
+    elif any(w in t for w in ["bedsheet", "curtain", "vacuum cleaner", "mop", "home decor", "cushion", "pillow", "mattress", "water purifier"]):
+        return "Home & Kitchen"
+
+    # Automotive & Travel
+    elif any(w in t for w in ["car ", "motorbike", "helmet", "bike cover", "car vacuum", "dash cam", "car charger", "tyre inflator"]):
+        return "Car & Motorbike"
+    elif any(w in t for w in ["trolley bag", "luggage", "suitcase", "travel backpack", "duffle bag", "travel organizer"]):
+        return "Travel"
+
+    # Accessories & General Gadgets
+    elif any(w in t for w in ["handbag", "wallet", "belt", "sunglasses", "backpack", "purse"]):
+        return "Accessories"
+    elif any(w in t for w in ["charger", "power bank", "cable", "mouse", "keyboard", "usb", "adapter", "stand"]):
+        return "Gadgets"
+
+    return "Gadgets"
 
 def scrape_product_details(url):
     logging.info(f"🔄 Scraping Product: {url[:60]}...")
@@ -215,48 +293,44 @@ def scrape_product_details(url):
 
         # 3. Price
         price_selectors = [
-            ("span", {"class": "a-price-whole"}),          # Amazon
-            ("div", {"class": "Nx9bqj CxhGGd"}),            # Flipkart
-            ("div", {"class": "Nx9bqj"}),                    # Flipkart
-            ("div", {"class": "_30jeq3"}),                   # Flipkart
-            ("div", {"class": "_30jeq3 _16Jk6d"}),           # Flipkart
-            ("div", {"class": "_25bWKC"}),                   # Flipkart variant
-            ("div", {"class": "HLT-1-"}),                    # Flipkart variant
+            ("span", {"class": "a-price-whole"}),
+            ("div", {"class": "Nx9bqj CxhGGd"}),
+            ("div", {"class": "Nx9bqj"}),
+            ("div", {"class": "_30jeq3"}),
+            ("div", {"class": "_30jeq3 _16Jk6d"}),
+            ("div", {"class": "_25bWKC"}),
+            ("div", {"class": "HLT-1-"}),
         ]
-        price_elem = None
         for tag, attrs in price_selectors:
             price_elem = soup.find(tag, attrs)
             if price_elem:
                 clean_price = re.sub(r"[^\d]", "", price_elem.get_text())
-                if clean_price and len(clean_price) >= 3:
+                if clean_price and len(clean_price) >= 2:
                     try:
                         data["price"] = f"₹{int(clean_price):,}"
                     except ValueError:
                         data["price"] = f"₹{clean_price}"
                     break
 
-        # Fallback 1: meta tag jisme price hota hai
+        # Fallback 1: meta price
         if data["price"] == "Check Best Price":
             meta_price = soup.find("meta", {"itemprop": "price"}) or soup.find("meta", {"property": "product:price:amount"})
             if meta_price and meta_price.get("content"):
                 clean_price = re.sub(r"[^\d]", "", meta_price.get("content"))
-                if clean_price and len(clean_price) >= 3:
+                if clean_price and len(clean_price) >= 2:
                     try:
                         data["price"] = f"₹{int(clean_price):,}"
                     except ValueError:
                         data["price"] = f"₹{clean_price}"
 
-        # Fallback 2: Regex scanning on page text for ₹ prices (e.g. ₹12,990)
+        # Fallback 2: Regex scanning
         if data["price"] == "Check Best Price":
-            price_matches = re.findall(r"₹\s?([0-9]{1,3}(?:,[0-9]{2,3})+|[0-9]{3,6})", res.text)
+            price_matches = re.findall(r"₹\s?([0-9]{1,3}(?:,[0-9]{2,3})+|[0-9]{2,6})", res.text)
             for pm in price_matches:
                 clean_num = re.sub(r"[^\d]", "", pm)
-                if clean_num and 100 <= int(clean_num) <= 1000000:
+                if clean_num and 50 <= int(clean_num) <= 1000000:
                     data["price"] = f"₹{int(clean_num):,}"
                     break
-
-        if data["price"] == "Check Best Price":
-            logging.warning("⚠️ Price scrape fail hui — 'Check Best Price' placeholder use ho raha hai.")
 
         # 4. Bullets
         bullet_elems = soup.find(id="feature-bullets")
@@ -268,29 +342,15 @@ def scrape_product_details(url):
         logging.error(f"⚠️ Scraping Error: {e}")
 
     if not data["title"]:
-        data["title"] = "Best Tech Gadget Deal"
+        data["title"] = "Best Deal Online"
 
-    title_lower = data["title"].lower()
-    if any(w in title_lower for w in ["laptop", "macbook", "notebook"]):
-        data["category"] = "Laptops"
-    elif any(w in title_lower for w in ["phone", "mobile", "5g", "smartphone", "iphone", "samsung"]):
-        data["category"] = "Mobiles"
-    elif any(w in title_lower for w in ["watch", "smartwatch"]):
-        data["category"] = "Smartwatches"
-    elif any(w in title_lower for w in ["soundbar", "speaker", "bluetooth speaker"]):
-        data["category"] = "Audio"
-    elif any(w in title_lower for w in ["earbuds", "headphone", "earphone", "airpods", "tws"]):
-        data["category"] = "Headphones"
-    elif any(w in title_lower for w in [" tv", "television", "smart tv", "led tv"]):
-        data["category"] = "TV"
-    elif any(w in title_lower for w in ["printer"]):
-        data["category"] = "Printers"
+    # Category Detection
+    data["category"] = detect_product_category(data["title"])
 
     return data
 
 # ================= 3. AI CONTENT GENERATOR =================
 def get_ai_response(prompt):
-    # 1) Pehle Gemini try karo (zyada reliable, official API)
     if GEMINI_SDK_AVAILABLE and GEMINI_API_KEY:
         try:
             if GENAI_NEW_SDK:
@@ -307,11 +367,10 @@ def get_ai_response(prompt):
 
             if text and len(text.strip()) > 20:
                 return text
-            logging.warning("⚠️ Gemini se khaali/chhota response mila, g4f fallback try kar rahe hain.")
+            logging.warning("⚠️ Gemini se response chhota mila, g4f fallback try kar rahe hain.")
         except Exception as e:
-            logging.warning(f"⚠️ Gemini call fail hui ({e}), g4f fallback try kar rahe hain.")
+            logging.warning(f"⚠️ Gemini call error ({e}), g4f fallback try kar rahe hain.")
 
-    # 2) Gemini na ho ya fail ho jaye, to g4f (unofficial, less reliable) try karo
     models = ["gpt-4o-mini", "gpt-3.5-turbo"]
     for model_name in models:
         try:
@@ -326,8 +385,6 @@ def get_ai_response(prompt):
             continue
     return ""
 
-# Category-wise generic fallback content — jab AI response fail ho jaye tab bhi
-# kam se kam category ke hisaab se relevant text/specs dikhein, "laptop" nahi.
 CATEGORY_FALLBACKS = {
     "Laptops": {
         "specs": {
@@ -341,7 +398,7 @@ CATEGORY_FALLBACKS = {
     "Mobiles": {
         "specs": {
             "Display": "High Refresh Rate AMOLED/LCD Display",
-            "Performance": "Latest Gen Processor & Ample RAM",
+            "Performance": "Latest Gen Processor & Fast RAM",
             "Camera": "Multi-Lens Rear Camera Setup",
             "Battery": "Large Battery with Fast Charging",
         },
@@ -349,48 +406,156 @@ CATEGORY_FALLBACKS = {
     },
     "Headphones": {
         "specs": {
-            "Driver": "Dynamic Driver for Balanced Sound",
-            "Battery Life": "Long Playback on Single Charge",
-            "Connectivity": "Bluetooth with Low Latency Mode",
+            "Driver": "Dynamic Drivers with Crisp Audio",
+            "Battery Life": "Long Playback Time on Single Charge",
+            "Connectivity": "Bluetooth with Low Latency",
             "Warranty": "1 Year Brand Warranty",
         },
         "noun": "earphones",
     },
     "Audio": {
         "specs": {
-            "Output Power": "High RMS Output for Loud, Clear Sound",
-            "Connectivity": "Bluetooth, AUX & USB Support",
-            "Sound Modes": "Multiple EQ / Bass Boost Modes",
+            "Output Power": "Powerful Audio Output with Deep Bass",
+            "Connectivity": "Bluetooth, AUX, USB & Optical",
+            "Sound Modes": "Multiple Equalizer & Bass Modes",
             "Warranty": "1 Year Brand Warranty",
         },
-        "noun": "soundbar",
+        "noun": "sound system",
     },
     "TV": {
         "specs": {
             "Display": "4K / Full HD Panel with Wide Viewing Angle",
-            "Smart Features": "Smart OS with Built-in Streaming Apps",
-            "Audio": "Built-in Speakers with Dolby Support",
+            "Smart OS": "Built-in Popular Streaming Apps",
+            "Audio": "Built-in Speakers with Surround Sound",
             "Warranty": "1 Year Brand Warranty",
         },
         "noun": "TV",
     },
     "Smartwatches": {
         "specs": {
-            "Display": "AMOLED / HD Touch Display",
-            "Health Tracking": "Heart Rate, SpO2 & Sleep Monitoring",
-            "Battery Life": "Multi-Day Battery Backup",
+            "Display": "Vibrant HD Touch Screen Display",
+            "Health Tracking": "Heart Rate, SpO2 & Activity Tracker",
+            "Battery Life": "Multi-day Battery Backup",
             "Warranty": "1 Year Brand Warranty",
         },
         "noun": "smartwatch",
     },
     "Printers": {
         "specs": {
-            "Print Type": "Inkjet / Laser Printing",
-            "Functions": "Print, Scan & Copy",
-            "Connectivity": "USB & Wireless Printing",
+            "Print Type": "High Quality Printing Output",
+            "Functions": "Print, Scan & Copy Support",
+            "Connectivity": "USB & Wireless Connectivity",
             "Warranty": "1 Year Brand Warranty",
         },
         "noun": "printer",
+    },
+    "Kitchen": {
+        "specs": {
+            "Material": "Food Grade Durable Material",
+            "Efficiency": "Energy & Time Efficient Operation",
+            "Safety": "Overload & Heat Protection",
+            "Warranty": "Brand Warranty Included",
+        },
+        "noun": "kitchen appliance",
+    },
+    "Home & Kitchen": {
+        "specs": {
+            "Quality": "Premium & Durable Build Quality",
+            "Utility": "Designed for Daily Home Convenience",
+            "Maintenance": "Easy to Clean & Maintain",
+            "Warranty": "Standard Brand Warranty",
+        },
+        "noun": "home utility product",
+    },
+    "Accessories": {
+        "specs": {
+            "Material": "Premium Quality Long Lasting Material",
+            "Design": "Modern, Sleek & Ergonomic Design",
+            "Usability": "Daily Essential Companion",
+            "Durability": "Wear & Tear Resistant",
+        },
+        "noun": "accessory",
+    },
+    "Women Western": {
+        "specs": {
+            "Fabric": "Soft, Breathable & Comfortable Fabric",
+            "Fit Type": "Modern Regular / Slim Fit",
+            "Occasion": "Casual, Office & Party Wear",
+            "Care": "Easy Machine / Hand Wash",
+        },
+        "noun": "western outfit",
+    },
+    "Kurti, Saree & Lehenga": {
+        "specs": {
+            "Fabric": "Rich Traditional Quality Fabric",
+            "Work/Pattern": "Elegant Print & Embroidery Work",
+            "Occasion": "Festive, Wedding & Party Wear",
+            "Care": "Dry Clean / Gentle Wash Recommended",
+        },
+        "noun": "ethnic wear",
+    },
+    "Lingerie": {
+        "specs": {
+            "Fabric": "Ultra Soft & Skin-Friendly Fabric",
+            "Comfort": "All-Day Breathable Comfort",
+            "Support": "Optimal Fit and Shape",
+            "Care": "Gentle Hand Wash",
+        },
+        "noun": "innerwear",
+    },
+    "For Women": {
+        "specs": {
+            "Quality": "High Quality Craftsmanship",
+            "Design": "Trendy & Modern Aesthetic",
+            "Comfort": "Designed for Maximum Comfort",
+            "Versatility": "Suitable for Multiple Occasions",
+        },
+        "noun": "women's product",
+    },
+    "For Men": {
+        "specs": {
+            "Quality": "Durable & Premium Material",
+            "Style": "Classic & Contemporary Look",
+            "Comfort": "Easy All-Day Wear",
+            "Fit": "Perfect Everyday Fit",
+        },
+        "noun": "men's product",
+    },
+    "Men": {
+        "specs": {
+            "Quality": "Premium Quality Finish",
+            "Style": "Modern & Smart Fit",
+            "Comfort": "Breathable & Comfortable",
+            "Care": "Easy Care & Washable",
+        },
+        "noun": "men's item",
+    },
+    "Travel": {
+        "specs": {
+            "Material": "Durable & Scratch Resistant Material",
+            "Compartments": "Spacious Multi-Compartment Storage",
+            "Portability": "Lightweight & Smooth Mobility",
+            "Security": "Sturdy Zippers & Lock Support",
+        },
+        "noun": "travel gear",
+    },
+    "Car & Motorbike": {
+        "specs": {
+            "Compatibility": "Universal / Vehicle Specific Fit",
+            "Build": "Heavy Duty Weather Resistant Material",
+            "Installation": "Quick & Easy Setup",
+            "Safety": "Certified Safe for Vehicles",
+        },
+        "noun": "auto accessory",
+    },
+    "Books": {
+        "specs": {
+            "Format": "Paperback / Hardcover",
+            "Language": "English / Hindi",
+            "Genre": "Informative & Engaging Content",
+            "Print Quality": "Clear Typography & Quality Paper",
+        },
+        "noun": "book",
     },
     "Gadgets": {
         "specs": {
@@ -403,90 +568,84 @@ CATEGORY_FALLBACKS = {
     },
 }
 
-
 def build_generic_fallback(short_name, product_data):
-    """AI fail hone par category ke hisaab se generic (lekin sahi) content banata hai."""
     category = product_data.get("category", "Gadgets")
     fallback = CATEGORY_FALLBACKS.get(category, CATEGORY_FALLBACKS["Gadgets"])
     noun = fallback["noun"]
 
-    # Price sirf tab dikhate hain jab actually scrape hui ho, warna generic wording.
     price = product_data.get("price", "Check Best Price")
     price_phrase = price if price != "Check Best Price" else "iske price range"
 
     return {
         "pros": [
-            f"Solid build quality for a {noun} in this segment",
-            "Reliable day-to-day performance",
-            "Multiple connectivity options",
-            "Sleek and modern design",
+            f"Solid build and value for money {noun}",
+            "Reliable performance & quality finish",
+            "Stylish, modern and practical design",
+            "Easy to use in day-to-day life",
         ],
         "cons": [
-            "Battery backup average under heavy load",
             "Stock limited during sale periods",
+            "Delivery might take extra time in remote areas",
         ],
         "specs": fallback["specs"],
         "review_html": (
             f"<h3>Overview</h3><p>Agar aap {price_phrase} mein ek behtareen {noun} "
-            f"dhoondh rahe hain, toh {short_name} ek strong contender hai. Isme aapko "
-            f"build quality aur performance ka accha balance milta hai.</p>"
-            f"<h3>Key Features & Performance</h3><p>Is {noun} mein aapko reliable "
-            f"everyday performance milti hai jo daily use ke liye kaafi hai.</p>"
-            f"<h3>Final Verdict</h3><p>Value for money ke hisaab se ye {noun} apne "
-            f"price range mein ek solid buy hai.</p>"
+            f"dhoondh rahe hain, toh {short_name} ek strong option hai. Isme aapko "
+            f"quality aur value for money ka accha balance milta hai.</p>"
+            f"<h3>Key Features & Performance</h3><p>Is {noun} mein practical features "
+            f"aur high durability milti hai jo daily use ke liye kaafi behtar hai.</p>"
+            f"<h3>Final Verdict</h3><p>Apne price segment ke hisaab se ye {noun} ek "
+            f"worth-buying deal sabit hoti hai.</p>"
         ),
     }
 
-
-# Updated Section 3: AI JSON Cleaning Improvement
 def generate_product_json_content(short_name, product_data):
+    category = product_data.get("category", "Gadgets")
     prompt = f"""
-    Act as a professional Indian tech journalist & SEO content writer. 
-    Write a detailed, engaging, and SEO-optimized product review in Hinglish for:
+    Act as a professional Indian product reviewer & SEO content writer. 
+    Write a detailed, engaging, and SEO-optimized review in natural Hinglish for:
     
     Product Name: {short_name}
+    Category: {category}
     Full Title: {product_data['title']}
     Price: {product_data['price']}
     Features: {product_data['bullets']}
 
     REQUIREMENTS:
-    1. 'review_html' MUST be at least 400-500 words with rich headings (<h3>), <p>, <ul>, <li>, <strong> tags.
-    2. Write in natural Hinglish style (e.g., "Kya aapko ye laptop kharidna chahiye?", "Performance aur Display Quality").
-    3. Breakdown specs into key categories: Display, Performance, Audio, Connectivity, Verdict.
-    4. Provide 4-5 solid Pros and 2-3 realistic Cons.
+    1. 'review_html' MUST be at least 350-450 words with rich headings (<h3>), <p>, <ul>, <li>, <strong> tags.
+    2. Write in conversational Hinglish style relevant to {category} (e.g. build quality, design, value for money, performance).
+    3. Breakdown specs into 4 relevant key categories for {category}.
+    4. Provide 4 solid Pros and 2 realistic Cons.
 
-    OUTPUT ONLY VALID JSON (NO MARKDOWN WRAPPERS):
+    OUTPUT ONLY VALID JSON (NO MARKDOWN CODE WRAPPERS):
     {{
         "pros": ["Point 1", "Point 2", "Point 3", "Point 4"],
         "cons": ["Point 1", "Point 2"],
         "specs": {{
-            "Display & Picture": "Detailed info",
-            "Performance & Processor": "Detailed info",
-            "Audio & Sound": "Detailed info",
-            "Connectivity": "Ports & Wireless"
+            "Key Feature 1": "Details",
+            "Key Feature 2": "Details",
+            "Key Feature 3": "Details",
+            "Key Feature 4": "Details"
         }},
-        "review_html": "<h3>Overview & First Impressions</h3><p>Detailed analysis...</p><h3>Display & Sound Performance</h3><p>Detailed breakdown...</p><h3>Value for Money & Final Verdict</h3><p>Final opinion...</p>"
+        "review_html": "<h3>Overview & First Impressions</h3><p>Analysis...</p><h3>Key Features & Usage Experience</h3><p>Details...</p><h3>Value for Money & Verdict</h3><p>Verdict...</p>"
     }}
     """
     raw_ai = get_ai_response(prompt)
 
     if not raw_ai:
-        logging.warning("⚠️ AI se koi response nahi mila (g4f fail/blocked ho sakta hai) — category-wise fallback use ho raha hai.")
+        logging.warning("⚠️ AI se response nahi mila — category fallback use ho raha hai.")
         return build_generic_fallback(short_name, product_data)
 
-    # Extract JSON robustly using regex
     json_match = re.search(r"\{.*\}", raw_ai, re.DOTALL)
     clean_json_str = json_match.group(0) if json_match else ""
 
     try:
         parsed = json.loads(clean_json_str)
-        # Sanity check: agar AI ne khaali/adhoora JSON diya to bhi fallback pe jao
         if not parsed.get("review_html") or not parsed.get("specs"):
-            raise ValueError("AI JSON incomplete (missing review_html/specs)")
+            raise ValueError("Incomplete AI JSON")
         return parsed
     except Exception as e:
-        logging.error(f"⚠️ Failed to parse AI JSON response: {e}")
-        logging.error(f"↳ Raw AI output (debug ke liye): {raw_ai[:500]}")
+        logging.error(f"⚠️ Failed to parse AI JSON: {e}")
         return build_generic_fallback(short_name, product_data)
 
 # ================= 4. JSON DATA MANAGER =================
@@ -528,9 +687,11 @@ async def process_and_publish(buy_url):
 
     main_image = product["images"][0] if product.get("images") else DEFAULT_FALLBACK_IMAGE
 
+    current_year = datetime.now(timezone.utc).year
+
     product_entry = {
         "id": slug,
-        "title": f"{short_name} Review (2026)",
+        "title": f"{short_name} Review ({current_year})",
         "short_name": short_name,
         "category": product["category"],
         "price": product["price"],
@@ -562,14 +723,12 @@ async def process_and_publish(buy_url):
         logging.info("🚀 Pushing changes to GitHub automatically...")
         git_executable = r'"C:\Program Files\Git\cmd\git.exe"' if os.path.exists(r"C:\Program Files\Git\cmd\git.exe") else "git"
 
-        # Pehle add+commit karo (taaki naye files stage/save ho jayein)
         subprocess.run(f"{git_executable} add .", shell=True, check=True)
         subprocess.run(f'{git_executable} commit -m "Auto-add product: {short_name}"', shell=True, check=False)
 
-        # Ab remote se latest changes khींch kar rebase karo, taaki push reject na ho
         pull_result = subprocess.run(f"{git_executable} pull origin main --rebase", shell=True)
         if pull_result.returncode != 0:
-            logging.warning("⚠️ git pull --rebase mein conflict/issue aaya — manually 'git status' check karein.")
+            logging.warning("⚠️ git pull --rebase mein conflict/issue aaya — manually check karein.")
 
         subprocess.run(f"{git_executable} push origin main", shell=True, check=True)
         logging.info("✅ GitHub Push Successful!")
@@ -577,38 +736,48 @@ async def process_and_publish(buy_url):
         logging.error(f"⚠️ Auto Git Push Failed: {e}")
 
     # 4. Telegram Post
-    tg_caption = f"🔥 <b>New Review Alert!</b>\n\n📱 <b>{short_name}</b>\n⭐️ <b>Rating:</b> {product['rating']}\n💰 <b>Price:</b> {product['price']}\n\n📖 <b>Read Review:</b>\n{page_url}\n\n🛒 <b>Buy on Store:</b>\n{buy_url}"
+    tg_caption = (
+        f"🔥 <b>New Review Alert!</b>\n\n"
+        f"📦 <b>{short_name}</b>\n"
+        f"🏷️ <b>Category:</b> {product['category']}\n"
+        f"⭐️ <b>Rating:</b> {product['rating']}\n"
+        f"💰 <b>Price:</b> {product['price']}\n\n"
+        f"📖 <b>Read Review:</b>\n{page_url}\n\n"
+        f"🛒 <b>Buy on Store:</b>\n{buy_url}"
+    )
     try:
-        async with Bot(token=TELEGRAM_BOT_TOKEN) as tg_bot:
-            await tg_bot.send_photo(
-                chat_id=TELEGRAM_CHAT_ID,
-                photo=main_image,
-                caption=tg_caption,
-                parse_mode="HTML"
-            )
-            logging.info("🎉 Telegram Notification Sent!")
+        if TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID:
+            async with Bot(token=TELEGRAM_BOT_TOKEN) as tg_bot:
+                await tg_bot.send_photo(
+                    chat_id=TELEGRAM_CHAT_ID,
+                    photo=main_image,
+                    caption=tg_caption,
+                    parse_mode="HTML"
+                )
+                logging.info("🎉 Telegram Notification Sent!")
     except Exception as e:
         logging.error(f"⚠️ Telegram Error: {e}")
 
     # 5. Make.com Webhook & Social Caption
+    category_tag = product["category"].replace(" ", "").replace("&", "")
     social_prompt = f"""
-    Write an attractive social media caption for Facebook, Pinterest, and Instagram for this product:
-    Title: {short_name}
+    Write an attractive social media caption for Instagram, Facebook & Pinterest for:
+    Product: {short_name}
+    Category: {product['category']}
     Price: {product['price']}
-    
-    Format EXACTLY like this:
-    Unleash the power of performance with the {short_name}! 🚀 With top-tier features and sleek design, it's built to keep up with your lifestyle. Get yours online at the best price today!
-    
-    #TechDeals #{short_name.replace(' ', '')} #BestDeals #Gadgets #AmazonDeals
+
+    Keep it engaging with relevant emojis, clear value point, and hashtags.
     """
     
     social_caption = get_ai_response(social_prompt)
     if not social_caption or len(social_caption.strip()) < 20:
-        social_caption = f"Unleash the power of performance with the {short_name}! 🚀 Get yours online at the best price {product['price']} today!\n\n#TechDeals #BestDeals #AmazonFinds"
+        clean_tag = re.sub(r'[^a-zA-Z0-9]', '', short_name)
+        social_caption = f"Check out the best deal on {short_name}! ✨ Get yours at the best price of {product['price']} today!\n\n#BestDeals #{category_tag} #{clean_tag} #OnlineShopping"
 
     try:
         payload = {
             "title": short_name,
+            "category": product["category"],
             "image_url": main_image,
             "caption": social_caption,
             "message": social_caption,
@@ -622,7 +791,7 @@ async def process_and_publish(buy_url):
             if response.status_code == 200:
                 logging.info(f"🎉 Make.com Webhook Triggered! Status: {response.status_code}")
             else:
-                logging.warning(f"⚠️ Make.com Webhook returned status code {response.status_code} (Please check MAKE_WEBHOOK_URL in .env)")
+                logging.warning(f"⚠️ Make.com Webhook returned status code {response.status_code}")
         else:
             logging.info("ℹ️ MAKE_WEBHOOK_URL .env mein missing hai — Webhook skip ho gaya.")
     except Exception as e:

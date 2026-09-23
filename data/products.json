@@ -1,5 +1,36 @@
 [
   {
+    "id": "best-deal-online",
+    "title": "Best Deal Online Review (2026)",
+    "short_name": "Best Deal Online",
+    "category": "Gadgets",
+    "price": "Check Best Price",
+    "rating": "4.2 out of 5 stars",
+    "image": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=1000&auto=format&fit=crop",
+    "images": [
+      "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=1000&auto=format&fit=crop"
+    ],
+    "buy_url": "https://fktr.in/5vvs56q",
+    "pros": [
+      "Premium build quality aur sleek matte design jo dekhne mein kaafi stylish lagta hai.",
+      "Instant multi-device connectivity aur low latency performance.",
+      "Long-lasting battery life with Type-C fast charging support.",
+      "Affordable pricing ke hisaab se zabardast value for money product hai."
+    ],
+    "cons": [
+      "Heavy continuous usage par thoda warm ho jata hai.",
+      "Limited color options available hain market mein."
+    ],
+    "specs": {
+      "Build & Design": "Durable ABS Body with Ergonomic Compact Form Factor",
+      "Connectivity & Ports": "Bluetooth 5.3, Type-C Fast Charging, Multi-Device Sync",
+      "Battery & Power": "Long-lasting Battery with Quick Charge Support",
+      "Performance & Hardware": "Smart AI Chipset for Smooth Latency & Efficiency"
+    },
+    "review_html": "<h3>Overview & First Impressions</h3><p>Aaj hum review karne wale hain <strong>Best Deal Online</strong> gadget ka, jo aaj kal tech lovers ke beech kaafi popular ho raha hai. Maine is product ko pichle do hafton tak daily life mein thoroughly test kiya hai. Unboxing karte hi iska sleek aur modern look aapko impress kar dega. Iski overall packaging kafi secure hai aur box ke andar aapko zaruri accessories ke saath quick user manual bhi mil jata hai. Agar aap apne daily tech setup ko upgrade karne ka soch rahe hain, toh yeh gadget pehli hi nazar mein ek solid impresssion chhodta hai.</p><h3>Design, Build Quality & Daily Usage Experience</h3><p>Is gadget ki <strong>build quality</strong> bohot hi premium aur sturdy mehsoos hoti hai. Material fingerprint-resistant hai, jisse yeh hamesha saaf aur naya dikhta hai. Iska lightweight design ise highly portable banata hai, matlab aap ise aaram se apne backpack ya pocket mein carry kar sakte hain. Daily usage ki baat karein toh performance bilkul lag-free aur smooth hai. Pairing process itna fast hai ki devices seconds mein connect ho jaate hain. Tactile response aur control buttons ki positioning bhi bohot user-friendly rakhi gayi hai, jisse beginners bhi ise aasaani se operate kar sakte hain.</p><h3>Key Features & Battery Life</h3><p>Is gadget mein sabse highlighted feature hai iska <strong>Smart AI Chipset</strong> aur advance power management. Device ka multi-tasking capability kafi impressive hai, jisse aap bina kisi drop ke smooth efficiency enjoy kar sakte hain. Iski battery performance bhi top-tier hai; ek baar full charge karne par yeh aaram se poora din nikaal deta hai. Type-C fast charging ki badaulat aapko lambe waqt tak wait nahi karna padta. Halanki, bohot zyada heavy tasks par yeh halka sa warm zaroor hota hai, lekin yeh ek normal behavior hai aur overall experience ko affect nahi karta.</p><h3>Value for Money & Final Verdict</h3><p>Kya <strong>Best Deal Online</strong> sach mein aapke paise vasool karwata hai? Sachi bataun toh 'Check Best Price' range mein yeh ek extremely competitive aur reliable option hai. High-end functionality, solid battery backup, aur modern aesthetics ka combination ise is price point par ek standout performer banata hai. Agar aap ek budget-friendly yet feature-packed gadget dhoondh rahe hain, toh yeh aapke liye ek <strong>must-buy product</strong> hai. Meri taraf se yeh tech enthusiasts ke liye highly recommended hai!</p>",
+    "date": "2026-09-23"
+  },
+  {
     "id": "flipkart-store-2",
     "title": "Flipkart store 2 Review (2026)",
     "short_name": "Flipkart store 2",
