@@ -155,33 +155,13 @@ def scrape_product_details(url):
     session = requests.Session()
     session.headers.update({
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
-        "Accept-Language": "en-US,en;q=0.9,hi;q=0.8",
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
-        "Accept-Encoding": "gzip, deflate, br",
-        "Connection": "keep-alive",
-        "Upgrade-Insecure-Requests": "1",
-        "Referer": "https://www.google.com/",
-        "Sec-Fetch-Dest": "document",
-        "Sec-Fetch-Mode": "navigate",
-        "Sec-Fetch-Site": "cross-site",
-        "Sec-Fetch-User": "?1",
-        "sec-ch-ua": '"Chromium";v="126", "Google Chrome";v="126", "Not.A/Brand";v="24"',
-        "sec-ch-ua-mobile": "?0",
-        "sec-ch-ua-platform": '"Windows"',
+        "Accept-Language": "en-US,en;q=0.9,hi;q=0.8"
     })
-    # Flipkart/Amazon dono homepage ko pehle ek baar visit karke session cookies le lo —
-    # isse "cold" bot-jaisi request ki jagah real-browsing-jaisi cookie history milti hai
-    try:
-        session.get("https://www.flipkart.com/", timeout=10)
-    except Exception:
-        pass
 
     res_url = unshorten_amazon_url(url, session)
-    logging.info(f"➡️ Resolved URL: {res_url}")
 
     try:
         res = session.get(res_url, allow_redirects=True, timeout=20)
-        logging.info(f"📡 Status Code: {res.status_code} | Response length: {len(res.text)} chars")
         soup = BeautifulSoup(res.content, "html.parser")
 
         # 1. Title
@@ -306,33 +286,6 @@ def scrape_product_details(url):
     elif any(w in title_lower for w in ["printer"]):
         data["category"] = "Printers"
 
-    # ---- Naye categories (build.py ke CATEGORY_CONFIG se match) ----
-    # NOTE: order zaroori hai — zyada specific keywords upar, generic neeche.
-    elif any(w in title_lower for w in ["kurti", "saree", "sari", "lehenga", "salwar", "dupatta", "chaniya"]):
-        data["category"] = "Kurti, Saree & Lehenga"
-    elif any(w in title_lower for w in ["bra", "lingerie", "panty", "panties", "nightwear", "camisole", "shapewear"]):
-        data["category"] = "Lingerie"
-    elif any(w in title_lower for w in ["women western", "women's dress", "women's top", "women's jeans", "crop top", "women's jumpsuit"]):
-        data["category"] = "Women Western"
-    elif any(w in title_lower for w in ["for women", "women's", "womens ", "ladies"]):
-        data["category"] = "For Women"
-    elif any(w in title_lower for w in ["for men", "men's", "mens "]):
-        data["category"] = "For Men"
-    elif re.search(r"\bmen\b", title_lower) or "man's" in title_lower:
-        data["category"] = "Men"
-    elif any(w in title_lower for w in ["cookware", "kadai", "tawa", "pressure cooker", "mixer grinder", "induction cooktop", "kitchen set", "non stick", "gas stove"]):
-        data["category"] = "Kitchen"
-    elif any(w in title_lower for w in ["home decor", "furniture", "storage rack", "curtain", "bedsheet", "home & kitchen", "wall clock"]):
-        data["category"] = "Home & Kitchen"
-    elif any(w in title_lower for w in ["trolley bag", "suitcase", "travel backpack", "duffel bag", "luggage"]):
-        data["category"] = "Travel"
-    elif any(w in title_lower for w in ["car accessories", "car cover", "bike cover", "helmet", "motorbike", "car vacuum", "car charger"]):
-        data["category"] = "Car & Motorbike"
-    elif any(w in title_lower for w in ["book", "novel", "guide book", "paperback", "hardcover"]):
-        data["category"] = "Books"
-    elif any(w in title_lower for w in ["wallet", "belt", "sunglasses", "watch strap", "handbag"]):
-        data["category"] = "Accessories"
-
     return data
 
 # ================= 3. AI CONTENT GENERATOR =================
@@ -447,114 +400,6 @@ CATEGORY_FALLBACKS = {
             "Warranty": "1 Year Brand Warranty",
         },
         "noun": "gadget",
-    },
-    "Kitchen": {
-        "specs": {
-            "Build Material": "Food-Grade, Durable Material",
-            "Capacity": "Family-Sized Capacity",
-            "Ease of Use": "Easy to Clean & Maintain",
-            "Warranty": "1 Year Brand Warranty",
-        },
-        "noun": "kitchen appliance",
-    },
-    "Home & Kitchen": {
-        "specs": {
-            "Build Quality": "Sturdy, Long-Lasting Material",
-            "Design": "Space-Saving, Modern Design",
-            "Maintenance": "Easy to Clean & Maintain",
-            "Warranty": "1 Year Brand Warranty",
-        },
-        "noun": "home essential",
-    },
-    "Accessories": {
-        "specs": {
-            "Material": "Durable, Premium Quality Material",
-            "Design": "Compact & Stylish Design",
-            "Compatibility": "Universal Fit / Wide Compatibility",
-            "Warranty": "Brand Warranty (as applicable)",
-        },
-        "noun": "accessory",
-    },
-    "For Women": {
-        "specs": {
-            "Material": "Comfortable, Skin-Friendly Fabric",
-            "Fit": "Regular Fit with Everyday Comfort",
-            "Care": "Easy Machine Wash",
-            "Available Sizes": "Multiple Sizes Available",
-        },
-        "noun": "product",
-    },
-    "Women Western": {
-        "specs": {
-            "Fabric": "Soft, Breathable Fabric",
-            "Fit & Style": "Trendy Western Fit",
-            "Care": "Easy Machine Wash",
-            "Available Sizes": "Multiple Sizes Available",
-        },
-        "noun": "western wear piece",
-    },
-    "Kurti, Saree & Lehenga": {
-        "specs": {
-            "Fabric": "Premium Ethnic Fabric",
-            "Work/Design": "Elegant Traditional Design",
-            "Care": "Gentle/Dry Wash Recommended",
-            "Available Sizes": "Multiple Sizes Available",
-        },
-        "noun": "ethnic wear piece",
-    },
-    "Lingerie": {
-        "specs": {
-            "Fabric": "Soft, Skin-Friendly Fabric",
-            "Comfort": "All-Day Comfort Fit",
-            "Care": "Easy Hand/Machine Wash",
-            "Available Sizes": "Multiple Sizes Available",
-        },
-        "noun": "product",
-    },
-    "For Men": {
-        "specs": {
-            "Material": "Durable, Comfortable Fabric",
-            "Fit": "Regular Fit with Everyday Comfort",
-            "Care": "Easy Machine Wash",
-            "Available Sizes": "Multiple Sizes Available",
-        },
-        "noun": "product",
-    },
-    "Men": {
-        "specs": {
-            "Material": "Durable, Comfortable Fabric",
-            "Fit": "Regular Fit with Everyday Comfort",
-            "Care": "Easy Machine Wash",
-            "Available Sizes": "Multiple Sizes Available",
-        },
-        "noun": "product",
-    },
-    "Travel": {
-        "specs": {
-            "Build Material": "Durable, Impact-Resistant Material",
-            "Capacity": "Spacious Storage Capacity",
-            "Mobility": "Smooth-Rolling Wheels / Comfortable Straps",
-            "Warranty": "1 Year Brand Warranty",
-        },
-        "noun": "travel gear",
-    },
-    "Car & Motorbike": {
-        "specs": {
-            "Build Material": "Weather-Resistant, Durable Material",
-            "Fit/Compatibility": "Universal Fit for Most Models",
-            "Installation": "Easy to Install & Use",
-            "Warranty": "Brand Warranty (as applicable)",
-        },
-        "noun": "car/bike accessory",
-    },
-    "Books": {
-        "specs": {
-            "Format": "Paperback / Hardcover",
-            "Language": "English/Hindi (as listed)",
-            "Content": "Well-Structured, Engaging Content",
-            "Pages": "As Listed by Publisher",
-        },
-        "noun": "book",
     },
 }
 
