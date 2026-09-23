@@ -386,26 +386,30 @@ def scrape_product_details(url):
 
 # ================= 3. AI CONTENT GENERATOR =================
 def get_ai_response(prompt):
+    # 1) Pehle Gemini try karo (with model fallbacks)
     if GEMINI_SDK_AVAILABLE and GEMINI_API_KEY:
-        try:
-            if GENAI_NEW_SDK:
-                client_genai = google_genai.Client(api_key=GEMINI_API_KEY)
-                res = client_genai.models.generate_content(
-                    model=GEMINI_MODEL,
-                    contents=prompt
-                )
-                text = getattr(res, "text", "") or ""
-            else:
-                model = genai.GenerativeModel(GEMINI_MODEL)
-                res = model.generate_content(prompt)
-                text = getattr(res, "text", "") or ""
+        gemini_candidate_models = list(OrderedDict.fromkeys([GEMINI_MODEL, "gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"]))
+        for m_name in gemini_candidate_models:
+            try:
+                if GENAI_NEW_SDK:
+                    client_genai = google_genai.Client(api_key=GEMINI_API_KEY)
+                    res = client_genai.models.generate_content(
+                        model=m_name,
+                        contents=prompt
+                    )
+                    text = getattr(res, "text", "") or ""
+                else:
+                    model = genai.GenerativeModel(m_name)
+                    res = model.generate_content(prompt)
+                    text = getattr(res, "text", "") or ""
 
-            if text and len(text.strip()) > 20:
-                return text
-            logging.warning("⚠️ Gemini se response chhota mila, g4f fallback try kar rahe hain.")
-        except Exception as e:
-            logging.warning(f"⚠️ Gemini call error ({e}), g4f fallback try kar rahe hain.")
+                if text and len(text.strip()) > 20:
+                    return text
+            except Exception as e:
+                logging.warning(f"⚠️ Gemini model '{m_name}' call error ({e}), next fallback try kar rahe hain...")
+                continue
 
+    # 2) Gemini na ho ya fail ho jaye, to g4f try karo
     models = ["gpt-4o-mini", "gpt-3.5-turbo"]
     for model_name in models:
         try:
