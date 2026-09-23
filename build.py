@@ -184,24 +184,12 @@ def build_site():
     """
 
     # ========== DYNAMIC NAV MENU ==========
-    # Unique categories jo products mein actually maujood hain
-    used_categories = []
+    nav_links = ['<a href="../../index.html">🏠 Home</a>']
     seen_ids = set()
-    for p in products:
-        cat = p.get("category", "Gadgets")
-        cfg = CATEGORY_CONFIG.get(cat)
-        if cfg and cfg["id"] not in seen_ids:
-            used_categories.append((cat, cfg))
+    for cat, cfg in CATEGORY_CONFIG.items():
+        if cfg["id"] not in seen_ids:
+            nav_links.append(f'<a href="../../index.html#{cfg["id"]}">{cfg["title"]}</a>')
             seen_ids.add(cfg["id"])
-        elif not cfg and cat not in seen_ids:
-            # Unknown category → auto add
-            slug = re.sub(r'[^a-z0-9]+', '-', cat.lower()).strip('-')
-            used_categories.append((cat, {"title": cat, "id": slug}))
-            seen_ids.add(slug)
-
-    nav_links = ['<a href="../../index.html">Home</a>']
-    for cat, cfg in used_categories:
-        nav_links.append(f'<a href="../../index.html#{cfg["id"]}">{cat}</a>')
 
     NAV_MENU_HTML = f"""
     <div class="sub-nav">
@@ -210,7 +198,7 @@ def build_site():
         </div>
     </div>
     """
-    NAV_MENU_HOME_HTML = NAV_MENU_HTML.replace("../../index.html", "index.html")
+    NAV_MENU_HOME_HTML = NAV_MENU_HTML.replace("../../index.html#", "#").replace("../../index.html", "index.html")
 
     # ========== PRODUCT DETAIL PAGES ==========
     for product in products:

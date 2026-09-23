@@ -7,6 +7,7 @@ import os
 import re
 import subprocess
 import time
+import urllib.parse
 import warnings
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
@@ -86,51 +87,73 @@ elif not GEMINI_API_KEY:
     logging.warning("⚠️ GEMINI_API_KEY .env mein nahi mili — Gemini skip hoga, g4f fallback use hoga.")
 
 # ================= 2. ADVANCED SCRAPER & HELPERS =================
-def unshorten_amazon_url(url, session):
-    if not any(domain in url for domain in ["amzn.to", "link.amazon", "earnkaro", "fktr.in", "linkredirect.in"]):
-        return url
+def unshorten_and_resolve_url(url, session):
+    """
+    Traces short links (fktr.in, amzn.to, earnkaro, linkredirect.in, etc.)
+    and unpacks hidden target query parameters (dl=, url=) until the real store page is reached.
+    """
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Mobile Safari/537.36",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.9,hi;q=0.8",
+    }
+    session.headers.update(headers)
 
-    try:
-        logging.info(f"🔍 Tracing redirect for: {url}")
-        res = session.get(url, allow_redirects=True, timeout=15)
-        soup = BeautifulSoup(res.content, "html.parser")
-        
-        meta_refresh = soup.find("meta", attrs={"http-equiv": re.compile(r"refresh", re.I)})
-        if meta_refresh:
-            content = meta_refresh.get("content", "")
-            match = re.search(r"url=['\"]?(.*?)['\"]?$", content, re.I)
-            if match:
-                redirect_url = match.group(1).strip()
-                res = session.get(redirect_url, allow_redirects=True, timeout=15)
-                soup = BeautifulSoup(res.content, "html.parser")
+    current_url = url.strip()
+    for _ in range(6):
+        # 1. Query parameter dl= ya url= decode karo
+        if "dl=" in current_url or "url=" in current_url:
+            parsed = urllib.parse.urlparse(current_url)
+            qs = urllib.parse.parse_qs(parsed.query)
+            if "dl" in qs and qs["dl"][0]:
+                current_url = urllib.parse.unquote(qs["dl"][0])
+            elif "url" in qs and qs["url"][0]:
+                current_url = urllib.parse.unquote(qs["url"][0])
 
-        scripts = soup.find_all("script")
-        for script in scripts:
-            if script.string:
-                target_match = re.search(r"['\"](https://(?:www\.|dl\.)?(?:flipkart\.com|amazon\.in)[^'\"]+)['\"]", script.string)
-                if target_match:
-                    redirect_url = target_match.group(1).strip()
-                    res = session.get(redirect_url, allow_redirects=True, timeout=15)
-                    soup = BeautifulSoup(res.content, "html.parser")
-                    break
+        if any(d in current_url for d in ["flipkart.com", "amazon.in", "amazon.com"]):
+            if not any(wrap in current_url for wrap in ["linkredirect.in", "fktr.in", "earnkaro"]):
+                break
 
-        if "amazon." in res.url or "flipkart." in res.url:
-            return res.url
+        try:
+            logging.info(f"🔍 Tracing redirect for: {current_url[:60]}...")
+            res = session.get(current_url, allow_redirects=True, timeout=15)
+            current_url = res.url
 
-    except Exception as e:
-        logging.warning(f"⚠️ Redirect resolution failed: {e}")
+            if "dl=" in current_url or "url=" in current_url:
+                continue
 
-    asin_match = re.search(r'([B0-9][A-Z0-9]{9})', url, re.IGNORECASE)
-    if asin_match:
+            soup = BeautifulSoup(res.content, "html.parser")
+            
+            meta_refresh = soup.find("meta", attrs={"http-equiv": re.compile(r"refresh", re.I)})
+            if meta_refresh and meta_refresh.get("content"):
+                match = re.search(r"url=['\"]?(.*?)['\"]?$", meta_refresh.get("content"), re.I)
+                if match:
+                    current_url = urllib.parse.unquote(match.group(1).strip())
+                    continue
+
+            target_match = re.search(r"['\"](https://(?:www\.|dl\.)?(?:flipkart\.com|amazon\.in|amazon\.com)[^'\"]+)['\"]", res.text)
+            if target_match:
+                current_url = target_match.group(1).strip()
+                break
+
+        except Exception as e:
+            logging.warning(f"⚠️ Redirect resolution failed: {e}")
+            break
+
+    asin_match = re.search(r'([B0-9][A-Z0-9]{9})', current_url, re.IGNORECASE)
+    if "amazon" in current_url and asin_match and "/dp/" not in current_url:
         return f"https://www.amazon.in/dp/{asin_match.group(1)}"
 
-    return url
+    return current_url
 
 def clean_product_name(raw_title):
     if not raw_title:
         return raw_title
 
     name = raw_title.strip()
+
+    # Flipkart artifact jaise (P...more) ya (...more)
+    name = re.sub(r"\s*\(?\s*p?\.\.\.more\)?", "", name, flags=re.IGNORECASE)
 
     # Amazon-style suffix: " : Amazon.in : Electronics" ya " - Amazon.in"
     name = re.sub(r"\s*[:\-]\s*Amazon\..*$", "", name, flags=re.IGNORECASE)
@@ -232,11 +255,12 @@ def scrape_product_details(url):
 
     session = requests.Session()
     session.headers.update({
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
+        "User-Agent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Mobile Safari/537.36",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
         "Accept-Language": "en-US,en;q=0.9,hi;q=0.8"
     })
 
-    res_url = unshorten_amazon_url(url, session)
+    res_url = unshorten_and_resolve_url(url, session)
 
     try:
         res = session.get(res_url, allow_redirects=True, timeout=20)
@@ -244,9 +268,11 @@ def scrape_product_details(url):
 
         # 1. Title
         title_elem = (
-            soup.find("span", {"id": "productTitle"}) 
-            or soup.find("span", {"class": "VU-Tz5"}) 
-            or soup.find("meta", {"property": "og:title"})
+            soup.find("meta", {"property": "og:title"})
+            or soup.find("h1")
+            or soup.find("span", {"id": "productTitle"}) 
+            or soup.find("span", {"class": "VU-Tz5"})
+            or soup.find("meta", {"name": "twitter:title"})
         )
         if title_elem:
             raw_title = title_elem.get("content") if title_elem.name == "meta" else title_elem.get_text()
@@ -254,11 +280,20 @@ def scrape_product_details(url):
             clean_title = re.sub(r"\s*:\s*Amazon\..*$", "", clean_title, flags=re.IGNORECASE)
             data["title"] = clean_title
 
+        # Title URL Slug fallback if blocked
+        if (not data["title"] or data["title"] in ["Flipkart store 2", "Amazon.in", "Online Shopping"]) and "/p/" in res_url:
+            slug_match = re.search(r"flipkart\.com/([^/]+)/p/", res_url)
+            if slug_match:
+                slug_words = slug_match.group(1).replace("-", " ").title()
+                data["title"] = slug_words
+
         # 2. Images
         images = []
         og_img = soup.find("meta", {"property": "og:image"})
         if og_img and og_img.get("content"):
-            images.append(clean_image_url(og_img.get("content")))
+            img_c = clean_image_url(og_img.get("content"))
+            if img_c and "ckassets" not in img_c:
+                images.append(img_c)
 
         script_imgs = re.findall(r'"hiRes":"(https://m.media-amazon.com/images/I/[^"]+)"', res.text)
         if not script_imgs:
@@ -269,18 +304,18 @@ def scrape_product_details(url):
             if cleaned and cleaned not in images:
                 images.append(cleaned)
 
-        fk_imgs = soup.find_all("img", {"class": ["_0D5CY0", "q6D3P8", "_2r_T1I"]})
+        fk_imgs = soup.find_all("img", {"class": ["_0D5CY0", "q6D3P8", "_2r_T1I", "_396cs4", "v1zwn21u"]})
         for fk in fk_imgs:
             src = fk.get("src", "")
             cleaned = clean_image_url(src)
-            if cleaned and cleaned not in images and "placeholder" not in cleaned:
+            if cleaned and cleaned not in images and "placeholder" not in cleaned and "ckassets" not in cleaned:
                 images.append(cleaned)
 
         if len(images) < 2:
             all_imgs = soup.find_all("img")
             for i in all_imgs:
                 src = i.get("src", "")
-                if ("media-amazon.com/images/I/" in src or "flixcart.com/image/" in src) and not any(x in src for x in ["icon", "logo", "sprite", "GIF"]):
+                if ("media-amazon.com/images/I/" in src or "flixcart.com/image/" in src) and not any(x in src for x in ["icon", "logo", "sprite", "GIF", "ckassets"]):
                     cleaned = clean_image_url(src)
                     if cleaned and cleaned not in images:
                         images.append(cleaned)
