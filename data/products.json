@@ -1,5 +1,40 @@
 [
   {
+    "id": "apple-iphone-17",
+    "title": "Apple iPhone 17 Review (2026)",
+    "short_name": "Apple iPhone 17",
+    "category": "Mobiles",
+    "price": "₹79,999",
+    "rating": "4.2 out of 5 stars",
+    "image": "https://rukminim3.flixcart.com/image/832/832/xif0q/mobile/0/a/f/-original-imahqvadmn9uydqz.jpeg?q=20",
+    "images": [
+      "https://rukminim3.flixcart.com/image/832/832/xif0q/mobile/0/a/f/-original-imahqvadmn9uydqz.jpeg?q=20",
+      "https://rukminim3.flixcart.com/image/832/832/xif0q/mobile/f/y/t/-original-imahqvad8fgah9gf.jpeg?q=80",
+      "https://rukminim3.flixcart.com/image/832/832/xif0q/mobile/g/t/x/-original-imahqvadtftcbhjj.jpeg?q=80",
+      "https://rukminim3.flixcart.com/image/832/832/xif0q/mobile/q/e/z/-original-imahqvadgujnnyqs.jpeg?q=80",
+      "https://rukminim3.flixcart.com/image/832/832/xif0q/mobile/4/z/j/-original-imahqvadk3wyfgrk.jpeg?q=80"
+    ],
+    "buy_url": "https://www.flipkart.com/apple-iphone-17-lavender-256-gb/p/itm5c650337c09ee?pid=MOBHQV9YDG7CGRAM&marketplace=FLIPKART&lid=LSTMOBHQV9YDG7CGRAMOQWOKL&param=363635&pageUID=1792037534169",
+    "pros": [
+      "Finally base model mein smooth 120Hz ProMotion display milta hai",
+      "48MP Dual Fusion camera natural skin tones aur sharp low-light shots deliver karta hai",
+      "A19 Bionic chip super fast gaming aur heavy multitasking aaram se sambhal leta hai",
+      "Enhanced battery efficiency ke sath poora din aaram se nikaal deta hai"
+    ],
+    "cons": [
+      "Retail box mein abhi bhi charging adapter include nahi kiya gaya hai",
+      "Higher storage variants (256GB/512GB) par price gap kaafi steep lagta hai"
+    ],
+    "specs": {
+      "Display & Build": "6.3-inch Super Retina XDR OLED, 120Hz ProMotion, Ceramic Shield front, Aerospace-grade Aluminium",
+      "Processor & OS": "Apple A19 Bionic Chip (3nm Architecture), 16-core Neural Engine, iOS 19",
+      "Camera Setup": "48MP Dual Fusion Main + 48MP Ultra-Wide with Macro Mode, 4K 60fps Dolby Vision HDR",
+      "Battery & Charging": "All-day battery life (upto 22 hrs video playback), 30W wired charging, MagSafe wireless support"
+    },
+    "review_html": "<h3>Overview & First Impressions</h3><p>Apple ka base <strong>iPhone 17</strong> finally wo massive upgrades lekar aaya hai jiska Indian tech lovers saalon se wait kar rahe the. Box kholte hi phone ka in-hand feel extremely premium aur balanced lagta hai. Apple ne is baar aerospace-grade aluminium frame ke edges ko subtly curved banaya hai, jisse grip kaafi ergonomic ho gayi hai. Slimmer bezels aur refined Ceramic Shield front glass na sirf looks ko enhance karte hain, balki accidental drops ke against solid durability bhi provide karte hain.</p><h3>Display & Performance: A19 Bionic Magic</h3><p>Sabse bada change iske display mein feel hota hai. Finally, base variant mein bhi <strong>120Hz ProMotion Super Retina XDR</strong> display standard mil raha hai. UI transitions, social media browsing aur animations ab extreme level ke smooth lagte hain, jisse overall experience Pro models jaisa hi feel hota hai.</p><p>Performance ke maamle mein, naya <strong>A19 Bionic chipset</strong> ek absolute powerhouse hai:</p><ul><li><strong>Gaming Performance:</strong> BGMI aur Genshin Impact high graphics settings par bina kisi frame drop ya excessive heating ke smoothly run karte hain.</li><li><strong>Thermal Efficiency:</strong> Internal cooling system improve hone ki wajah se long sessions mein thermal throttling ka issue nahi milta.</li><li><strong>Everyday Multitasking:</strong> iOS 19 ka optimization aur extra RAM heavy app switching ko bilkul seamless bana deta hai.</li></ul><h3>Camera & Battery: Real-Life Usage Experience</h3><p>iPhone 17 ka <strong>48MP Dual Fusion camera</strong> setup photography enthusiast aur casual users dono ke liye best hai. Daylight shots mein dynamic range exceptional aati hai, shadows mein details clear rehti hain aur skin tones bilkul true-to-life preserve hote hain. Upgraded ultra-wide lens ab macro shots capture karne mein fully capable hai. Low-light ya indoor lighting mein Night Mode automatic trigger hokar noise-free aur crisp pictures nikaalta hai. Video lovers ke liye 4K 60fps Dolby Vision HDR stabilization unmatched smoothness deta hai.</p><p>Battery backup ke context mein, phone regular social media usage, video streaming aur camera testing ke sath easily <strong>7.5 se 8 ghante ka Screen-on-Time (SOT)</strong> deliver karta hai, matlab single charge par poora din bina worry ke nikal jayega.</p><h3>Value for Money & Verdict</h3><p>Kya <strong>₹79,999</strong> ke starting price par iPhone 17 lena worth it hai? Bilkul! Agar aap iPhone 12, 13 ya even standard 14 use kar rahe hain, toh ye jump massive feel hoga. 120Hz display, flagship-level A19 processor aur pro-grade camera setup is phone ko is segment ka sabse dependable aur future-proof smartphone banata hai.</p>",
+    "date": "2026-10-15"
+  },
+  {
     "id": "realme-p4-lite-5g",
     "title": "realme P4 Lite 5G Review (2026)",
     "short_name": "realme P4 Lite 5G",
