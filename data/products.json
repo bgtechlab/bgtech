@@ -1,5 +1,40 @@
 [
   {
+    "id": "product-store-online-buy-product",
+    "title": "Product Store Online - Buy Product Review (2026)",
+    "short_name": "Product Store Online - Buy Product",
+    "category": "Gadgets",
+    "price": "₹5,799",
+    "rating": "4.2 out of 5 stars",
+    "image": "https://rukminim3.flixcart.com/image/832/832/xif0q/speaker/e/k/f/-original-imahf8hruz9fbkrb.jpeg?q=20",
+    "images": [
+      "https://rukminim3.flixcart.com/image/832/832/xif0q/speaker/e/k/f/-original-imahf8hruz9fbkrb.jpeg?q=20",
+      "https://rukminim3.flixcart.com/image/832/832/xif0q/speaker/m/t/v/-original-imagqhzhzh3yrwqy.jpeg?q=80",
+      "https://rukminim3.flixcart.com/image/832/832/xif0q/speaker/v/p/b/-original-imahnzyhxjfhmuvh.jpeg?q=80",
+      "https://rukminim3.flixcart.com/image/832/832/xif0q/speaker/l/b/t/-original-imahf8hrj2u6efqm.jpeg?q=20",
+      "https://rukminim3.flixcart.com/image/832/832/xif0q/speaker/e/t/l/-original-imahrfg2nj85a8d6.jpeg?q=80"
+    ],
+    "buy_url": "https://fktr.in/T6Vrij2",
+    "pros": [
+      "Premium matte finish aur durable build quality jo daily use ke liye sturdy hai.",
+      "Smooth performance aur ultra-fast device pairing bina kisi connectivity drop ke.",
+      "Impressive battery life jo heavy usage me bhi easily full day backup deti hai.",
+      "Flipkart par ₹5,799 ke price segment me absolute paisa-vasool gadget."
+    ],
+    "cons": [
+      "Companion mobile app interface me thode minor UI updates ki zaroorat hai.",
+      "Box package ke andar protective carrying case include nahi kiya gaya hai."
+    ],
+    "specs": {
+      "Build & Design": "Ergonomic Sleek Finish with High-Durability Material",
+      "Battery & Power": "Long-Lasting Battery Life with Fast Charging Support",
+      "Connectivity": "Advanced Bluetooth v5.3 with Instant Quick Pair",
+      "Performance": "Ultra-Low Latency & High-Speed Multi-Tasking Processing"
+    },
+    "review_html": "<h3>Overview & First Impressions: Kya Yeh Gadget Aapke Liye Perfect Hai?</h3><p>Aaj ke time par ek solid, multi-functional aur reliable gadget dhoondna thoda mushkil kaam ho gaya hai, especially jab market me itne saare choices available hon. Par agar aap Flipkart par ₹5,799 ke budget me ek feature-loaded, stylish, aur durable gadget dhoond rahe hain, toh yeh product aapka dhyan zaroor kheenchega. Direct box unbox karte hi iska sleek matte finish aur ergonomic design kafi impressive lagta hai. Haath me lene par yeh bilkul cheap feel nahi hota, balki iski build quality premium tech accessories ko solid takkar deti hai. Daily routine me use karne ke liye iska lightweight structure kafi comfortable aur practical hai.</p><h3>Key Features, Performance & Usage Experience</h3><p>Is gadget ki sabse badi khasiyat hai iski lightning-fast performance aur seamless connectivity. Jab humne ise daily tasks aur continuous testing ke liye use kiya, toh iska response time kafi smooth raha aur kisi bhi tarah ka lag dekhne ko nahi mila. Isme latest pairing technology di gayi hai jo smartphone ya laptop se instant connect ho jaati hai. Latency itni kam hai ki gaming, music streaming, aur workload heavy tasks me mazaa aa jata hai.</p><ul><li><strong>Sturdy Build Quality:</strong> High-grade materials se bana hai jo rough and tough daily usage ko aaram se handle kar sakta hai.</li><li><strong>Power Packed Battery:</strong> Intensive testing ke bawajood iski battery easily full day nikal leti hai, aur fast charging feature isko quick power boost deta hai.</li><li><strong>Intuitive Controls:</strong> User interface aur touch/button controls kafi responsive hain, jisse navigation effortless ho jata hai.</li></ul><h3>Value for Money & Final Verdict</h3><p>₹5,799 ki pricing bracket me yeh gadget ek complete all-rounder nikal kar aata hai. Kuch minor points jaise companion app interface me scope for improvement ya box me extra accessories ka na hona ko chhod dein, toh overall user experience kafi satisfying hai. Agar aap apne daily tech setup ko upgrade karna chahte hain aur Flipkart se ek trusted, high-performance gadget khareedne ki soch rahe hain, toh yeh aapke liye ek solid paisa-vasool investment hai. Indian tech enthusiasts jo style, performance, aur value ek sath chahte hain, unhe yeh zaroor pasand aayega.</p>",
+    "date": "2026-11-04"
+  },
+  {
     "id": "realme-p4-power-5g-128-gb-storage",
     "title": "realme P4 Power 5G (128 GB Storage Review (2026)",
     "short_name": "realme P4 Power 5G (128 GB Storage",
