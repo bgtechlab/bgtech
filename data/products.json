@@ -1,5 +1,40 @@
 [
   {
+    "id": "amazon-echo-dot-5th-gen",
+    "title": "Amazon Echo Dot (5th Gen) Review (2026)",
+    "short_name": "Amazon Echo Dot (5th Gen)",
+    "category": "Audio",
+    "price": "₹5,499",
+    "rating": "4.2 out of 5 stars",
+    "image": "https://m.media-amazon.com/images/I/71g4BDBcz1L.jpg",
+    "images": [
+      "https://m.media-amazon.com/images/I/71g4BDBcz1L.jpg",
+      "https://m.media-amazon.com/images/I/41mEmeL1MSL.PKmb-play-button-overlay_.jpg",
+      "https://m.media-amazon.com/images/I/11Sa2OpQXzL.png",
+      "https://m.media-amazon.com/images/I/21Fasp7DYDL.jpg",
+      "https://m.media-amazon.com/images/I/21GMZuVmQmL.jpg"
+    ],
+    "buy_url": "https://link.amazon/A0iaSofJE",
+    "pros": [
+      "Deeper bass aur clearer vocals ke saath audio quality previous gen se noticeable better hai.",
+      "In-built temperature sensor aur motion detection smart home automation ko super easy banate hain.",
+      "Compact spherical design solid build quality aur premium fabric finish ke saath aata hai.",
+      "Alexa voice assistant fast respond karta hai aur Indian accents aur Hinglish commands ko easily samajhta hai."
+    ],
+    "cons": [
+      "3.5mm aux audio output port iss generation se remove kar diya gaya hai.",
+      "₹5,499 ki pricing thodi premium lagti hai kyunki isme LED clock display nahi milta."
+    ],
+    "specs": {
+      "Sound & Audio Performance": "1.73-inch front-firing speaker with deeper bass, clear vocals, and loss-free HD audio support",
+      "Smart Features & Voice": "Built-in Alexa, smart home routines, hands-free voice control, privacy mute button",
+      "Built-in Sensors": "Ultrasound Motion Detection & In-built Ambient Temperature Sensor",
+      "Connectivity & Compatibility": "Dual-band Wi-Fi (2.4 & 5 GHz), Bluetooth audio streaming, Amazon Alexa App support"
+    },
+    "review_html": "<h3>Design & First Impressions: Sleek Spherical Aesthetic</h3><p>Agar aap apne bedroom ya living room ke liye ek compact, stylish, aur smart audio device dhoondh rahe hain, toh <strong>Amazon Echo Dot (5th Gen)</strong> aapki list mein sabse upar hona chahiye. Iska iconic spherical design aur elegant Deep Blue color variant aapke desk ya side table ko ek modern aesthetic upgrade deta hai. <strong>Build quality</strong> ki baat karein toh fabric mesh finish kaafi premium lagti hai aur top surface par micro-buttons (volume up/down, mic disable, aur action button) bahut responsive hain. Fabric cover post-consumer recycled materials se bana hai, jo ki environment-conscious buyers ke liye ek badhiya add-on hai.</p><h3>Audio Performance & Smart Features Setup</h3><p>Audio quality ke maamle mein 5th Gen ne previous 4th Gen model se ek bada leap liya hai. Isme ek naya 1.73-inch front-firing speaker system diya gaya hai jo surprisingly deep bass aur crystal-clear vocals deliver karta hai. Chahe aap Arijit Singh ke soulful Hindi songs sun rahe ho ya high-tempo Punjabi beats, sound muddy nahi hoti aur vocals humesha sharp rehte hain. High volume par bhi distortion minimal hai, jo ek chote room ke liye sufficient room-filling audio provide karta hai.</p><p>Smart capabilities ki taraf dekhein toh is baar Amazon ne isme naye sensors add kiye hain. Iska <strong>in-built temperature sensor</strong> aur <strong>ultrasound motion detection</strong> aapke smart home experience ko next level par le jaate hain. Aap Alexa app ke through aasaan routines set kar sakte hain—jaise jab room ka temperature 26°C se upar jaaye toh smart AC switch on ho jaye, ya jaise hi aap room mein walk-in karein lights turn on ho jayein. Alexa voice assistant Indian accents aur Hinglish voice commands ko bilkul aasaani se samajh leti hai.</p><h3>Value for Money & Verdict</h3><p>₹5,499 ki pricing par, Amazon Echo Dot (5th Gen) thoda premium lag sakta hai, lekin iske feature set ko dekhte hue yeh ek complete smart lifestyle upgrade hai. Halanki 3.5mm aux audio port remove kar diya gaya hai jo wired speaker lovers ko thoda disappointed kar sakta hai, lekin iska solid Bluetooth integration aur improved sound profile is chote drawback ko easily compensate kar deta hai. Overall, agar aapko ek powerful audio quality wala <strong>smart speaker</strong> chahiye jo smart home ecosystem ko manage kare, toh yeh deal bilkul <strong>value for money</strong> hai.</p>",
+    "date": "2026-11-25"
+  },
+  {
     "id": "ecovacs-original-accessory-kit-for-deebot-t30e-omni",
     "title": "ECOVACS Original Accessory Kit for DEEBOT T30e Omni Review (2026)",
     "short_name": "ECOVACS Original Accessory Kit for DEEBOT T30e Omni",
