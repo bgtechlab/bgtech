@@ -247,7 +247,6 @@ def scrape_product_details(url):
     data = {
         "title": "",
         "price": "Check Best Price",
-        "rating": "4.2 out of 5 stars",
         "images": [],
         "bullets": "",
         "category": "Gadgets"
@@ -641,7 +640,7 @@ def build_generic_fallback(short_name, product_data):
 def generate_product_json_content(short_name, product_data):
     category = product_data.get("category", "Gadgets")
     prompt = f"""
-    Act as a professional Indian product reviewer & SEO content writer. 
+    Act as an Indian SEO content writer. 
     Write a detailed, engaging, and SEO-optimized review in natural Hinglish for:
     
     Product Name: {short_name}
@@ -651,6 +650,7 @@ def generate_product_json_content(short_name, product_data):
     Features: {product_data['bullets']}
 
     REQUIREMENTS:
+    0. You have NOT used or tested this product. Never claim or imply testing, hands-on use or personal experience, and never invent ratings or user opinions. Write only from the details given above.
     1. 'review_html' MUST be at least 350-450 words with rich headings (<h3>), <p>, <ul>, <li>, <strong> tags.
     2. Write in conversational Hinglish style relevant to {category} (e.g. build quality, design, value for money, performance).
     3. Breakdown specs into 4 relevant key categories for {category}.
@@ -666,7 +666,7 @@ def generate_product_json_content(short_name, product_data):
             "Key Feature 3": "Details",
             "Key Feature 4": "Details"
         }},
-        "review_html": "<h3>Overview & First Impressions</h3><p>Analysis...</p><h3>Key Features & Usage Experience</h3><p>Details...</p><h3>Value for Money & Verdict</h3><p>Verdict...</p>"
+        "review_html": "<h3>Overview & First Impressions</h3><p>Analysis...</p><h3>Key Features</h3><p>Details...</p><h3>Value for Money & Verdict</h3><p>Verdict...</p>"
     }}
     """
     raw_ai = get_ai_response(prompt)
@@ -734,7 +734,6 @@ async def process_and_publish(buy_url):
         "short_name": short_name,
         "category": product["category"],
         "price": product["price"],
-        "rating": product["rating"],
         "image": main_image,
         "images": product["images"],
         "buy_url": buy_url,
@@ -779,7 +778,6 @@ async def process_and_publish(buy_url):
         f"🔥 <b>New Review Alert!</b>\n\n"
         f"📦 <b>{short_name}</b>\n"
         f"🏷️ <b>Category:</b> {product['category']}\n"
-        f"⭐️ <b>Rating:</b> {product['rating']}\n"
         f"💰 <b>Price:</b> {product['price']}\n\n"
         f"📖 <b>Read Review:</b>\n{page_url}\n\n"
         f"🛒 <b>Buy on Store:</b>\n{buy_url}"

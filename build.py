@@ -955,7 +955,7 @@ def build_site():
         <li class="nav-menu-item active"><a href="{PREFIX}index.html">🏠 Home</a></li>
         <li class="nav-menu-item"><a href="{PREFIX}index.html#categories">📑 All Categories</a></li>
         <li class="nav-menu-item"><a href="{PREFIX}index.html#trending">🔥 Best Deals</a></li>
-        <li class="nav-menu-item"><a href="{PREFIX}index.html#top-rated">⭐ Top Rated</a></li>
+        <li class="nav-menu-item"><a href="{PREFIX}index.html#top-rated">⭐ Featured</a></li>
         <li class="nav-menu-item"><a href="{PREFIX}index.html#compare">⚖️ Compare Products</a></li>
         <li class="nav-menu-item"><a href="{PREFIX}index.html#reviews">📝 Reviews</a></li>
         <li class="nav-menu-item"><a href="{PREFIX}index.html#about">ℹ️ About Us</a></li>
@@ -1038,7 +1038,7 @@ def build_site():
                         <li><a href="{p}index.html">Home</a></li>
                         <li><a href="{p}index.html#categories">All Categories</a></li>
                         <li><a href="{p}index.html#trending">Best Deals</a></li>
-                        <li><a href="{p}index.html#top-rated">Top Rated</a></li>
+                        <li><a href="{p}index.html#top-rated">Featured</a></li>
                     </ul>
                 </div>
                 <div class="footer-col">
@@ -1108,7 +1108,7 @@ def build_site():
         for key, val in product.get("specs", {}).items():
             specs_html += f"<tr><td style='padding:12px; border-bottom:1px solid #E2E8F0; font-weight:600; color:#475569;'>{key}</td><td style='padding:12px; border-bottom:1px solid #E2E8F0; color:#0F172A;'>{val}</td></tr>"
 
-        meta_desc = f"Read detailed review of {product['short_name']} on BG ProductCheck. Check specs, price in India, pros, cons, and expert performance rating."
+        meta_desc = f"Read detailed review of {product['short_name']} on BG ProductCheck. Check specs, price in India, pros and cons."
 
         raw_price = product.get('price', '')
         clean_num_price = re.sub(r'[^\d]', '', raw_price)
@@ -1127,9 +1127,6 @@ def build_site():
                 </div>
                 <div class="card-info">
                     <a href="../{rel['id']}/" class="card-title-link">{rel['short_name']}</a>
-                    <div class="card-rating-row">
-                        <span>★</span> {rel.get('rating', '4.2 out of 5 stars')}
-                    </div>
                     <div class="card-price-row">
                         <div class="card-price">{rel['price']}</div>
                     </div>
@@ -1170,13 +1167,6 @@ def build_site():
         "@type": "Brand",
         "name": "BG ProductCheck"
       }},
-      "aggregateRating": {{
-        "@type": "AggregateRating",
-        "ratingValue": "4.4",
-        "bestRating": "5",
-        "worstRating": "1",
-        "ratingCount": "180"
-      }},
       "offers": {{
         "@type": "Offer",
         "priceCurrency": "INR",
@@ -1200,11 +1190,10 @@ def build_site():
         
         <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
             <span style="background:#EFF6FF; color:#1D4ED8; font-size:12px; font-weight:700; padding:4px 10px; border-radius:20px;">{category_name}</span>
-            <span style="color:#059669; font-size:12px; font-weight:700;">✓ Verified Expert Review</span>
+            <span style="color:#059669; font-size:12px; font-weight:700;">AI-assisted Product Overview</span>
         </div>
         
         <h1 style="font-size: 28px; font-weight: 800; margin-bottom: 8px; color: var(--text-heading);">{product['title']}</h1>
-        <div style="font-size: 15px; font-weight:600; color: #F59E0B; margin-bottom: 20px;">★ {product.get('rating', '4.2 out of 5 stars')} | Tested by BG ProductCheck Team</div>
         
         <!-- 5-IMAGE SIDE GALLERY HERO SECTION -->
         <div class="product-hero">
@@ -1249,7 +1238,7 @@ def build_site():
         
         <!-- REVIEW HTML -->
         <div style="background: white; border: 1px solid var(--border-light); border-radius: 12px; padding: 32px; line-height: 1.8; font-size: 16px; color: #334155; margin-bottom: 40px; box-shadow:var(--shadow-sm);">
-            <h2 style="margin-bottom: 20px; font-size: 24px; font-weight:800; color: #0F172A; border-bottom: 2px solid #E2E8F0; padding-bottom: 10px;">Detailed Review & Expert Analysis</h2>
+            <h2 style="margin-bottom: 20px; font-size: 24px; font-weight:800; color: #0F172A; border-bottom: 2px solid #E2E8F0; padding-bottom: 10px;">Product Overview</h2>
             {product.get('review_html', '')}
         </div>
         
@@ -1293,9 +1282,6 @@ def build_site():
                 </div>
                 <div class="card-info">
                     <a href="products/{p['id']}/" class="card-title-link">{p['short_name']}</a>
-                    <div class="card-rating-row">
-                        <span>★</span> {p.get('rating', '4.2 out of 5 stars')}
-                    </div>
                     <div class="card-price-row">
                         <div class="card-price">{p['price']}</div>
                     </div>
@@ -1353,7 +1339,7 @@ def build_site():
                 </div>
             </div>"""
 
-    # Top Rated list for sidebar
+    # Featured list for sidebar
     top_rated_sidebar_html = ""
     for p in products[:5]:
         top_rated_sidebar_html += f"""
@@ -1362,7 +1348,6 @@ def build_site():
             <div class="top-rated-details">
                 <a href="products/{p['id']}/"><h6>{p['short_name']}</h6></a>
                 <div class="top-rated-meta">
-                    <span style="color:#F59E0B;">★ {p.get('rating', '4.4')}</span>
                     <span class="top-rated-price">{p['price']}</span>
                 </div>
             </div>
@@ -1379,7 +1364,6 @@ def build_site():
                 <h6>{p['short_name']} Review</h6>
                 <div class="review-mini-meta">
                     <span>⏱️ 5 min read</span>
-                    <span style="color:#F59E0B;">★ 4.5</span>
                 </div>
             </div>
         </a>"""
@@ -1402,11 +1386,11 @@ def build_site():
         </div>
         <div class="promo-card">
             <div>
-                <h5>⭐ Top Rated</h5>
-                <p>Highly Rated by Users</p>
-                <a href="#top-rated">View Top Rated ➔</a>
+                <h5>⭐ Featured</h5>
+                <p>Our Latest Picks</p>
+                <a href="#top-rated">View Featured ➔</a>
             </div>
-            <img src="{p_img2}" class="promo-thumb" alt="Top Rated">
+            <img src="{p_img2}" class="promo-thumb" alt="Featured">
         </div>
         <div class="promo-card">
             <div>
@@ -1553,7 +1537,7 @@ def build_site():
                 <!-- TOP RATED WIDGET -->
                 <div class="sidebar-widget" id="top-rated">
                     <div class="widget-title">
-                        <span>⭐ Top Rated Products</span>
+                        <span>⭐ Featured Products</span>
                         <a href="#top-rated">View All ➔</a>
                     </div>
                     <div class="top-rated-list">
